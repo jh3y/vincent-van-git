@@ -6,6 +6,7 @@ release-builds/
 #################################
 .tmp/
 dist/
+app/
 node_modules/
 *.compiled.*
 .cache

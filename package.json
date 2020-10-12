@@ -14,12 +14,13 @@
   ],
   "main": "main.js",
   "scripts": {
-    "dev": "browser-sync start --no-open --server dist --files dist & parcel watch src/markup/index.pug --target electron & nodemon --ignore src/ --ignore dist/ --exec \"electron .\"",
-    "prod": "cross-env NODE_ENV=production webpack --mode production --config webpack.build.config.js && electron --noDevServer .",
-    "start": "cross-env NODE_ENV=development nodemon --exec \"webpack-dev-server --hot --host 0.0.0.0 --config=./webpack.dev.config.js --mode development\"",
-    "build": "cross-env NODE_ENV=production webpack --config webpack.build.config.js --mode production",
-    "package": "npm run build",
-    "postpackage": "electron-packager ./ --out=./release-builds"
+    "predev": "parcel build src/markup/index.pug --target electron -d app --public-url ./",
+    "dev": "browser-sync start --server app --files app --no-open & parcel watch src/markup/index.pug --target electron -d app --public-url ./ & nodemon --ignore src/ --ignore app/ --exec \"electron .\"",
+    "rundev": "cross-env NODE_ENV=development electron .",
+    "preprod": "parcel build src/markup/index.pug --target electron -d app --public-url ./",
+    "prod": "electron .",
+    "prepackage": "cross-env NODE_ENV=production parcel build src/markup/index.pug --target electron -d app --public-url ./",
+    "package": "electron-packager . --out=./release-builds"
   },
   "dependencies": {
     "react": "^16.13.1",

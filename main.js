@@ -1,8 +1,10 @@
 const url = require('url')
+const path = require('path')
 const receiver = require('./receiver')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
 let mainWindow
+let isDev
 
 if (
   process.env.NODE_ENV !== undefined &&
@@ -28,12 +30,22 @@ function createMainWindow() {
 
   let indexPath
 
-  indexPath = url.format({
-    protocol: 'http:',
-    host: 'localhost:3000',
-    pathname: 'index.html',
-    slashes: true,
-  })
+  if (isDev) {
+    console.info('RUNNING DEV')
+    indexPath = url.format({
+      protocol: 'http:',
+      host: 'localhost:3000',
+      pathname: 'index.html',
+      slashes: true,
+    })
+  } else {
+    indexPath = url.format({
+      protocol: 'file:',
+      pathname: path.join(__dirname, 'app', 'index.html'),
+      slashes: true,
+    })
+  }
+
 
   mainWindow.loadURL(indexPath)
 

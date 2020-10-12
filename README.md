@@ -51,9 +51,6 @@ or
 yarn package
 ```
 
-#### App building and packaging
-In progress :sweat_smile:
-
 -----
 
 Built by @jh3y 2020 MIT
