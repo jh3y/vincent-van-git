@@ -19,8 +19,8 @@ ipcMain.on('message-send', (event, message) => {
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 800,
+    width: 880,
+    height: 200,
     show: false,
     icon: `${__dirname}/assets/icon.png`,
     webPreferences: {
@@ -31,7 +31,6 @@ function createMainWindow() {
   let indexPath
 
   if (isDev) {
-    console.info('RUNNING DEV')
     indexPath = url.format({
       protocol: 'http:',
       host: 'localhost:3000',
