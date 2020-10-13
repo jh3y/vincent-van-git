@@ -1,9 +1,5 @@
-## electron-parcel-react-starter
-
-
-A boilerplate that gets you up and running with Electron and React using Parcel bundler. No need for Webpack.
-Allows use of Electron API such as `ipcRenderer` from your React code :sunglasses:.
-
+# Vincent Van Git
+Use your Github commit history as a canvas!
 
 ### Install
 

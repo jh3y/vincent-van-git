@@ -1,8 +1,8 @@
 {
-  "name": "electron-parcel-react-starter",
-  "productName": "electron-parcel-react-starter",
+  "name": "vincent-van-git",
+  "productName": "vincent-van-git",
   "version": "0.0.1",
-  "description": "Get up and running quickly with Electron and React using Parcel",
+  "description": "Use your Github commit history as a canvas!",
   "license": "MIT",
   "engines": {
     "node": ">=9.0.0",
@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "styled-components": "^5.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
