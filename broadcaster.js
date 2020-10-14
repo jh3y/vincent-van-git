@@ -1,7 +1,7 @@
 const fs = require('fs')
 const { DateTime } = require('luxon')
 const { cd, echo, rm, which } = require('shelljs')
-const { exec }  = require('child_process')
+const { execSync } = require('child_process')
 
 const GITHUB_USERNAME = 'jh3y'
 const GITHUB_REPOSITORY = 'vincent-van-git-test'
@@ -43,8 +43,8 @@ const broadcast = async arr => {
     await fs.promises.mkdir(REPO_LOCATION)
     // Initialise the git repo
     cd(REPO_LOCATION)
-    exec('git init')
-    exec('say new git repo initialized')
+    execSync('git init')
+    execSync('say new git repo initialized')
     // Loop through the array matching up the dates and creating empty commits
     for (let d = 0; d < arr.length; d++) {
       // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
@@ -53,10 +53,15 @@ const broadcast = async arr => {
       if (NUMBER_COMMITS > 0) {
         const COMMIT_DAY = START_DAY.plus({ days: d })
         for (let c = 0; c < NUMBER_COMMITS; c++) {
-          exec(`git commit --allow-empty --date "${COMMIT_DAY.toHTTP()}" -m "Vincent paints again"`)
+          execSync(`git commit --allow-empty --date "${COMMIT_DAY.toHTTP()}" -m "Vincent paints again"`)
+          console.info(`committing for date ${(c / NUMBER_COMMITS) * 100}%`)
         }
       }
+      console.info(`processing ${(d / arr.length) * 100}%`)
     }
+    // TODO: Communicate progress in the console and to the user on the front end.
+    // It takes time, make an animation of pixel art at the laptop?
+    console.info('All commits processed')
   }
 }
 
