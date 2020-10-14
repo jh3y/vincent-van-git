@@ -1,8 +1,7 @@
 const { exec } = require('child_process')
-
+const { broadcast } = require('./broadcaster')
 const Receiver = message => {
-  console.info(message)
-  exec(`say message received`)
+  broadcast(message)
 }
 
 module.exports = Receiver
