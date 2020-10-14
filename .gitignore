@@ -10,6 +10,7 @@ app/
 node_modules/
 *.compiled.*
 .cache
+.push-me/
 
 # Folder config file #
 ######################
