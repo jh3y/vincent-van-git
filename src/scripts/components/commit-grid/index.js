@@ -8,6 +8,7 @@ export default function CommitGrid({ cells }) {
   const rendered = useRef(null)
   const erasing = useRef(null)
   const draw = (e) => {
+    e.preventDefault()
     const cell =
       e.clientX && e.clientY
         ? document.elementFromPoint(e.clientX, e.clientY)
@@ -27,6 +28,7 @@ export default function CommitGrid({ cells }) {
   }
 
   const stopDrawing = (e) => {
+    e.preventDefault()
     rendered.current = null
     erasing.current = false
     window.removeEventListener('pointermove', draw)
@@ -34,6 +36,7 @@ export default function CommitGrid({ cells }) {
   }
 
   const startDrawing = (e) => {
+    e.preventDefault()
     // If right mouse button, go into erase mode
     if (e.button === 2) {
       e.preventDefault()
@@ -44,13 +47,22 @@ export default function CommitGrid({ cells }) {
     window.addEventListener('pointerup', stopDrawing)
   }
 
+  const moot = e => {
+    e.preventDefault()
+    return false
+  }
+
   return (
     <div
       onPointerDown={startDrawing}
-      onContextMenu={(e) => {
-        e.preventDefault()
-        return false
-      }}
+      onContextMenu={moot}
+      onDrag={moot}
+      onDragEnd={moot}
+      onDragEnter={moot}
+      onDragExit={moot}
+      onDragLeave={moot}
+      onDragOver={moot}
+      onDragStart={moot}
       ref={gridRef}
       className="commit-grid">
       {cells.map((cell, index) => {

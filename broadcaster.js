@@ -19,8 +19,8 @@ const TODAY = DateTime.local()
  */
 const generateShellScript = async (arr) => {
   const START_DAY = TODAY.minus({ days: arr.length - 1 })
-  let SCRIPT = `mkdir .push-me
-cd .push-me
+  let SCRIPT = `mkdir ${REPO_DIR}
+cd ${REPO_DIR}
 git init
 `
   // Loop through the array matching up the dates and creating empty commits
@@ -41,7 +41,7 @@ git init
   SCRIPT += `git remote add origin https://github.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}.git\n`
   SCRIPT += `git push -u origin ${GITHUB_BRANCH}\n`
   SCRIPT += `cd ../\n`
-  SCRIPT += `rm -rf ${REPO_LOCATION}\n`
+  SCRIPT += `rm -rf ${REPO_DIR}\n`
   return SCRIPT
 }
 
