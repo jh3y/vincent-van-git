@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import './commit-grid.styl'
+
+const MAX_LEVEL = 4
 
 export default function CommitGrid({ cells }) {
   const gridRef = useRef(null)
@@ -18,8 +20,8 @@ export default function CommitGrid({ cells }) {
         cells[INDEX] = 0
       } else {
         const LEVEL = parseInt(cell.getAttribute('data-level'), 10) || 0
-        cell.setAttribute('data-level', Math.min(3, LEVEL + 1))
-        cells[INDEX] = Math.min(3, LEVEL + 1)
+        cell.setAttribute('data-level', Math.min(MAX_LEVEL, LEVEL + 1))
+        cells[INDEX] = Math.min(MAX_LEVEL, LEVEL + 1)
       }
     }
   }

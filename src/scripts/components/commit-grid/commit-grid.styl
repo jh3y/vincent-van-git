@@ -3,8 +3,9 @@
   --cell-size: 11;
   --cell-gap: 5;
   --green-one: hsl(130, 64%, 76%);
-  --green-two: hsl(136, 54%, 41%);
-  --green-three: hsl(139, 54%, 28%);
+  --green-two: hsl(136, 53%, 51%);
+  --green-three: hsl(136, 54%, 41%);
+  --green-four: hsl(139, 54%, 28%);
   display: inline-grid;
   grid-template-columns: repeat(53, auto);
   grid-template-rows: repeat(7, auto);
@@ -27,6 +28,9 @@
     }
     &[data-level="3"] {
       --bg: var(--green-three);
+    }
+    &[data-level="4"] {
+      --bg: var(--green-four);
     }
   }
 

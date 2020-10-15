@@ -14,7 +14,7 @@ if (
 }
 
 ipcMain.on('message-send', (event, message) => {
-  receiver(message)
+  receiver(message, event)
 })
 
 function createMainWindow() {

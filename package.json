@@ -23,6 +23,7 @@
     "package": "electron-packager . --out=./release-builds"
   },
   "dependencies": {
+    "electron-dl": "^3.0.2",
     "luxon": "^1.25.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
