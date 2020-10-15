@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { ipcRenderer } from 'electron'
 import CommitGrid from './commit-grid'
 
 const App = () => {
+  const [uploading, setUploading] = useState(false)
   const [cleared, setCleared] = useState(new Date().toUTCString())
-  const NUMBER_OF_DAYS = (52 * 7) + (new Date().getDay() + 1)
+  const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
 
   const clearGrid = () => {
@@ -20,13 +21,25 @@ const App = () => {
     }
   }
 
+  useEffect(() => {
+    ipcRenderer.on('vvg-progress', (event, arg) => {
+      console.log(arg)
+      setUploading(arg.progress !== 100)
+    })
+  }, [])
+
   return (
     <div className="app">
-      <CommitGrid key={cleared} cells={cellsRef.current}/>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <button onClick={clearGrid}>Clear</button>
-        <button onClick={sendGrid}>Send</button>
-      </form>
+      {!uploading && (
+        <Fragment>
+          <CommitGrid key={cleared} cells={cellsRef.current} />
+          <form onSubmit={(e) => e.preventDefault()}>
+            <button onClick={clearGrid}>Clear</button>
+            <button onClick={sendGrid}>Send</button>
+          </form>
+        </Fragment>
+      )}
+      {uploading && <h1>Commits being generated, please wait.</h1>}
     </div>
   )
 }
