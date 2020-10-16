@@ -13,7 +13,11 @@ export default function CommitGrid({ cells }) {
       e.clientX && e.clientY
         ? document.elementFromPoint(e.clientX, e.clientY)
         : e.target
-    if (cell && cell.parentNode === gridRef.current && rendered.current !== cell) {
+    if (
+      cell &&
+      cell.parentNode === gridRef.current &&
+      rendered.current !== cell
+    ) {
       rendered.current = cell
       const INDEX = parseInt(cell.getAttribute('data-index'), 10)
       if (erasing.current) {
@@ -47,10 +51,12 @@ export default function CommitGrid({ cells }) {
     window.addEventListener('pointerup', stopDrawing)
   }
 
-  const moot = e => {
+  const moot = (e) => {
     e.preventDefault()
     return false
   }
+
+  console.info('DRAW', cells)
 
   return (
     <div
@@ -68,10 +74,14 @@ export default function CommitGrid({ cells }) {
       {cells.map((cell, index) => {
         const COLUMN = Math.floor(index / 7) + 1
         return (
-          <div style={{
-            '--column': COLUMN
-          }} className="commit-grid__cell" data-index={index} key={index}>
-          </div>
+          <div
+            style={{
+              '--column': COLUMN,
+            }}
+            className="commit-grid__cell"
+            data-level={cell || 0}
+            data-index={index}
+            key={index}></div>
         )
       })}
     </div>
