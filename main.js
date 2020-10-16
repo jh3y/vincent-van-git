@@ -1,6 +1,7 @@
 const url = require('url')
 const path = require('path')
-const receiver = require('./receiver')
+const { broadcast } = require('./broadcaster')
+const { readConfig, writeConfig } = require('./config-utility')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
 let mainWindow
@@ -13,8 +14,37 @@ if (
   isDev = true
 }
 
-ipcMain.on('message-send', (event, message) => {
-  receiver(message, event)
+ipcMain.on('message-send', async (event, {name, commits}) => {
+  const CONFIG = await readConfig()
+  console.info(name, commits)
+  if (name) {
+    await writeConfig({
+      ...CONFIG,
+      images: [
+        ...(CONFIG.IMAGES ? CONFIG.IMAGES : []),
+        {
+          name,
+          commits,
+        }
+      ],
+    })
+  }
+  console.info(CONFIG)
+  broadcast({
+    ...CONFIG,
+    commits
+  }, event)
+})
+
+ipcMain.on('update-config', async (event, message) => {
+  await writeConfig(message)
+  const CONFIG = await readConfig()
+  console.info(CONFIG)
+})
+
+ipcMain.handle('grab-config', async () => {
+  const CONFIG = await readConfig()
+  return CONFIG
 })
 
 function createMainWindow() {
@@ -44,7 +74,6 @@ function createMainWindow() {
       slashes: true,
     })
   }
-
 
   mainWindow.loadURL(indexPath)
 

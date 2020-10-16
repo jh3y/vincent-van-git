@@ -15,7 +15,7 @@
   "main": "main.js",
   "scripts": {
     "predev": "parcel build src/markup/index.pug --target electron -d app --public-url ./",
-    "dev": "browser-sync start --server app --files app --no-open & parcel watch src/markup/index.pug --target electron -d app --public-url ./ & nodemon --ignore src/ --ignore app/ --exec \"electron .\"",
+    "dev": "browser-sync start --server app --files app --no-open & parcel watch src/markup/index.pug --target electron -d app --public-url ./ & nodemon --ignore src/ --ignore vincent-van-git.config.json --ignore app/ --exec \"electron .\"",
     "rundev": "cross-env NODE_ENV=development electron .",
     "preprod": "parcel build src/markup/index.pug --target electron -d app --public-url ./",
     "prod": "electron .",
@@ -23,10 +23,13 @@
     "package": "electron-packager . --out=./release-builds"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "electron-dl": "^3.0.2",
     "luxon": "^1.25.0",
+    "node-fetch": "^2.6.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-hook-form": "^6.9.2",
     "shelljs": "^0.8.4"
   },
   "devDependencies": {
