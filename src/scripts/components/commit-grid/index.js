@@ -56,8 +56,6 @@ export default function CommitGrid({ cells }) {
     return false
   }
 
-  console.info('DRAW', cells)
-
   return (
     <div
       onPointerDown={startDrawing}

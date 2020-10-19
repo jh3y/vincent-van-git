@@ -18,6 +18,21 @@ const SHELL_LOCATION = `${TMP_DIR}${SHELL_FILE}`
 const REPO_LOCATION = `${TMP_DIR}${REPO_DIR}`
 const TODAY = DateTime.local()
 
+const validateConfig = async (username, repository, branch) => {
+  const userRequest = await fetch(`https://github.com/${username}`)
+  if (userRequest.status !== 200)
+    throw Error('Vincent van Git: Github username does not exist!')
+  // Check for the repository
+  const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
+  if (repoRequest.status !== 200)
+    throw Error('Vincent van Git: Github repository does not exist!')
+  // Check for the repository branch
+  const branchRequest = await fetch(
+    `https://github.com/jh3y/${repository}/tree/${branch}`
+  )
+  if (branchRequest.status !== 200)
+    throw Error('Vincent van Git: Github branch does not exist!')
+}
 /**
  * Generate and write a shell script to a location.
  */
@@ -28,7 +43,9 @@ const generateShellScript = async (
   branch,
   repoPath
 ) => {
+  console.info('COMMITS', commits)
   const START_DAY = TODAY.minus({ days: commits.length - 1 })
+  const COMMIT_MULTIPLIER = await scrapeCommits(username)
   let SCRIPT = `mkdir ${repoPath}
 cd ${repoPath}
 git init
@@ -38,7 +55,7 @@ git init
     // Git commit structure
     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
     const LEVEL = commits[d]
-    const NUMBER_COMMITS = LEVEL * 50
+    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
     if (NUMBER_COMMITS > 0) {
       const COMMIT_DAY = START_DAY.plus({ days: d })
       for (let c = 0; c < NUMBER_COMMITS; c++) {
@@ -60,12 +77,11 @@ const downloadShellScript = async (
   username,
   repository,
   branch,
-  event
 ) => {
-  event.reply('vvg-progress', {
-    progress: 0,
-  })
-
+  // Checks that things exist before proceeding
+  await validateConfig(username, repository, branch)
+  const IS_EMPTY = await isEmptyRepo(username, repository)
+  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
   const SCRIPT = await generateShellScript(
     commits,
     username,
@@ -77,10 +93,15 @@ const downloadShellScript = async (
   const FILE_URL = `${process.cwd()}/vincent-van-git.sh`
   await fs.promises.writeFile(FILE_URL, SCRIPT)
   await download(WIN, `file:///${FILE_URL}`)
+}
 
-  event.reply('vvg-progress', {
-    progress: 100,
-  })
+const isEmptyRepo = async (username, repository) => {
+  const PAGE = await (
+    await fetch(
+      `https://github.com/${username}/${repository}/graphs/commit-activity`
+    )
+  ).text()
+  return PAGE.indexOf('blankslate') !== -1
 }
 
 const paintCommitsNode = async (
@@ -90,6 +111,9 @@ const paintCommitsNode = async (
   branch,
   event
 ) => {
+  const IS_EMPTY = await isEmptyRepo(username, repository)
+  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
+  const COMMIT_MULTIPLIER = await scrapeCommits(username)
   // Grab the start day
   const START_DAY = TODAY.minus({ days: commits.length - 1 })
   // Remove the repo directory if it exists
@@ -110,7 +134,7 @@ const paintCommitsNode = async (
     // Git commit structure
     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
     const LEVEL = commits[d]
-    const NUMBER_COMMITS = LEVEL * 50
+    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
     if (NUMBER_COMMITS > 0) {
       const COMMIT_DAY = START_DAY.plus({ days: d })
       for (let c = 0; c < NUMBER_COMMITS; c++) {
@@ -140,7 +164,6 @@ const paintCommitsNode = async (
 
 const broadcast = async ({ username, repository, branch, commits }, event) => {
   // Before we do anything, disable the front end.
-  console.info('SENDING', commits, username, repository, branch)
   event.reply('vvg-progress', {
     progress: 0,
   })
@@ -164,27 +187,7 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
     if (branchRequest.status !== 200)
       throw Error('Vincent van Git: Github branch does not exist!')
 
-    // If it all passes, try shell script
-    // if (which('sh')) {
-    if (false) {
-      const SCRIPT = await generateShellScript(
-        commits,
-        username,
-        repository,
-        branch,
-        REPO_LOCATION
-      )
-      // Write script temporarily to AppData? Or Temp folder?
-      await fs.promises.writeFile(`${SHELL_LOCATION}`, SCRIPT)
-      execSync(`sh ${SHELL_LOCATION}`)
-      console.info('Script run!')
-      console.info(SHELL_LOCATION)
-      rm(SHELL_LOCATION)
-      // Run this
-    } else {
-      // Do it the long Node way.
-      await paintCommitsNode(commits, username, repository, branch, event)
-    }
+    await paintCommitsNode(commits, username, repository, branch, event)
 
     event.reply('vvg-progress', {
       progress: 100,
@@ -198,4 +201,5 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
 
 module.exports = {
   broadcast,
+  downloadShellScript
 }
