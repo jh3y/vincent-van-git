@@ -10,31 +10,60 @@ const App = () => {
       name: 'Leave blank to not save',
     },
   })
+  const [snapshot, setSnapshot] = useState('')
   const [config, setConfig] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [cleared, setCleared] = useState(new Date().toUTCString())
   const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
+  const snapshotNameRef = useRef(null)
 
   const clearGrid = () => {
     if (confirm('Are you sure you wish to clear the grid?')) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
+      setSnapshot('')
+      snapshotNameRef.current.value = ''
       setCleared(new Date().toUTCString())
     }
   }
 
-  const onSend = (values) => {
-    ipcRenderer.send('message-send', {
-      commits: cellsRef.current,
-      name: values.imagename,
-    })
+  const deleteSnapshot = () => {
+    console.info('DELETE', snapshot)
+  }
+
+  const saveSnapshot = () => {
+    if (
+      snapshotNameRef.current.value.trim() !== '' &&
+      cellsRef.current.filter((cell) => cell !== 0).length
+    ) {
+      ipcRenderer.send('save-snapshot', {
+        commits: cellsRef.current,
+        name: snapshotNameRef.current.value,
+      })
+    }
   }
 
   const sendGrid = () => {
-    if (confirm('Push commits to Github?')) {
-      setShowSave(true)
+    const MSG = `
+      Push commits to Github?
+
+      Have you saved your image?
+
+      WARNING: Please make sure the repo is empty that you are pushing to!
+    `
+    if (confirm(MSG)) {
+      ipcRenderer.send('message-send', {
+        commits: cellsRef.current,
+        name: snapshotNameRef.current.value,
+      })
     }
+  }
+
+  const generateScript = () => {
+    ipcRenderer.send('generate-script', {
+      commits: cellsRef.current,
+    })
   }
 
   useEffect(() => {
@@ -48,6 +77,17 @@ const App = () => {
       setShowSave(false)
       alert(arg.message)
     })
+    ipcRenderer.on('snapshot-save-fail', (event, arg) => {
+      alert(arg.message)
+    })
+    ipcRenderer.on('snapshot-saved', (event, arg) => {
+      alert(arg.message)
+      setConfig(arg.config)
+      setSnapshot(arg.saved)
+    })
+    ipcRenderer.on('script-downloaded', (event, arg) => {
+      alert(arg.message)
+    })
   }, [])
 
   useEffect(() => {
@@ -58,29 +98,42 @@ const App = () => {
     grabConfig()
   }, [])
 
-  const selectSnapshot = e => {
-    console.info(e.target.value)
-    if (e.target.value.split(',').length > 1) {
-      console.info("LOAD THIS", e.target.value.split(',').length)
-      cellsRef.current = e.target.value.split(',').map(value => parseInt(value, 10))
-      setCleared(new Date().toUTCString())
-    }
+  const selectSnapshot = (e) => {
+    console.info(e.button)
+    setSnapshot(e.target.value)
+    if (e.target.value === 'Select a snapshot') return
+    const { name, commits } = JSON.parse(e.target.value)
+    snapshotNameRef.current.value = name
+    cellsRef.current = commits.map((value) => parseInt(value, 10))
+    setCleared(new Date().toUTCString())
   }
 
-  console.info(cellsRef.current)
+  console.info(snapshot)
 
   return (
     <div className="app">
-      {!uploading && !showSave && (
+      {!uploading && (
         <Fragment>
           <CommitGrid key={cleared} cells={cellsRef.current} />
           <button onClick={clearGrid}>Clear</button>
+          <button onClick={generateScript}>Generate</button>
           <button onClick={sendGrid}>Send</button>
+          <button onClick={saveSnapshot}>Save</button>
+          {snapshot !== '' && <button onClick={deleteSnapshot}>Delete</button>}
+          <input type="text" ref={snapshotNameRef} />
           {config && config.images && config.images.length > 0 && (
-            <select onChange={selectSnapshot}>
+            <select onChange={selectSnapshot} value={snapshot}>
               <option>Select a snapshot</option>
               {config.images.map(({ name, commits }, index) => (
-                <option value={commits} key={index}>{name}</option>
+                <option
+                  onContextMenu={console.info}
+                  value={JSON.stringify({
+                    name,
+                    commits,
+                  })}
+                  key={index}>
+                  {name}
+                </option>
               ))}
             </select>
           )}
@@ -88,13 +141,6 @@ const App = () => {
         </Fragment>
       )}
       {uploading && <h1>Commits being generated, please wait.</h1>}
-      {showSave && !uploading && (
-        <form onSubmit={handleSubmit(onSend)}>
-          <label htmlFor="name">Image name</label>
-          <input name="imagename" type="text" id="name" ref={register()} />
-          <input type="submit" value="Submit" />
-        </form>
-      )}
     </div>
   )
 }
