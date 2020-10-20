@@ -1,5 +1,6 @@
 const url = require('url')
 const path = require('path')
+const { APP_CONSTANTS } = require('./src/constants')
 const { broadcast, downloadShellScript } = require('./broadcaster')
 const { readConfig, writeConfig } = require('./config-utility')
 const { app, BrowserWindow, ipcMain } = require('electron')
@@ -23,12 +24,12 @@ const saveSnapshot = async (name, commits, event) => {
     // If it does contain the commits, do nothing.
     // If it contains the name, update it after a confirm.
 
-    let newImages = [...CONFIG.images]
+    let newImages = CONFIG.images ? [...CONFIG.images] : []
     // Filter for the name.
     const EXISTS_BY_NAME =
-      CONFIG.images.filter((image) => image.name === name).length > 0
+      newImages.filter((image) => image.name === name).length > 0
     const EXISTS_BY_VALUE =
-      CONFIG.images.filter(
+      newImages.filter(
         (image) => JSON.stringify(image.commits) === JSON.stringify(commits)
       ).length > 0
     // console.info(EXISTS_BY_VALUE, EXISTS_BY_NAME, name, commits)
@@ -113,9 +114,10 @@ ipcMain.handle('grab-config', async () => {
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 880,
-    height: 200,
+    width: APP_CONSTANTS.WIDTH,
+    height: APP_CONSTANTS.HEIGHT,
     show: false,
+    resizable: isDev,
     icon: `${__dirname}/assets/icon.png`,
     webPreferences: {
       nodeIntegration: true,
