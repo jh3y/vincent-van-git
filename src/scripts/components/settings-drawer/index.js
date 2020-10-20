@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = require('electron')
 import { useForm } from 'react-hook-form'
+import Cog from '../icons/cog.svg'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
@@ -26,8 +27,8 @@ const SettingsDrawer = (props) => {
       style={{
         '--open': open ? 1 : 0,
       }}>
-      <button className="settings-drawer__toggle" onClick={toggleMenu}>
-        Toggle Menu
+      <button title={`${open ? 'Close' : 'Open'} settings`} className="settings-drawer__toggle" onClick={toggleMenu}>
+        <Cog/>
       </button>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form__field">
