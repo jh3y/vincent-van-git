@@ -118,7 +118,7 @@ const App = () => {
           <button onClick={clearGrid}>Clear</button>
           <button onClick={generateScript}>Generate</button>
           <button onClick={sendGrid}>Send</button>
-          <button onClick={saveSnapshot}>Save</button>
+          <button onClick={saveSnapshot}>Save Snapshot</button>
           {snapshot !== '' && <button onClick={deleteSnapshot}>Delete</button>}
           <input type="text" ref={snapshotNameRef} />
           {config && config.images && config.images.length > 0 && (
