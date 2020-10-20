@@ -1,0 +1,14 @@
+const APP_CONSTANTS = {
+  WIDTH: 943,
+  HEIGHT: 266
+}
+
+const MESSAGING_CONSTANTS = {
+  ERROR: 'VVG_ERROR',
+  MESSAGE: 'VVG_MESSAGE'
+}
+
+module.exports = {
+  APP_CONSTANTS,
+  MESSAGING_CONSTANTS
+}
