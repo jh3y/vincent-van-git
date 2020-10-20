@@ -3,6 +3,11 @@ import { ipcRenderer } from 'electron'
 import { useForm } from 'react-hook-form'
 import CommitGrid from './commit-grid'
 import SettingsDrawer from './settings-drawer'
+import Save from './icons/content-save.svg'
+import Delete from './icons/delete.svg'
+import Download from './icons/download.svg'
+import Erase from './icons/eraser-variant.svg'
+import Rocket from './icons/rocket.svg'
 
 const App = () => {
   const { handleSubmit, register, setValue } = useForm({
@@ -29,7 +34,7 @@ const App = () => {
   }
 
   const deleteSnapshot = () => {
-    console.info('DELETE', snapshot)
+    console.info('DELETE THIS', snapshot)
   }
 
   const saveSnapshot = () => {
@@ -99,7 +104,6 @@ const App = () => {
   }, [])
 
   const selectSnapshot = (e) => {
-    console.info(e.button)
     setSnapshot(e.target.value)
     if (e.target.value === 'Select a snapshot') return
     const { name, commits } = JSON.parse(e.target.value)
@@ -115,28 +119,44 @@ const App = () => {
       {!uploading && (
         <Fragment>
           <CommitGrid key={cleared} cells={cellsRef.current} />
-          <button onClick={clearGrid}>Clear</button>
-          <button onClick={generateScript}>Generate</button>
-          <button onClick={sendGrid}>Send</button>
-          <button onClick={saveSnapshot}>Save Snapshot</button>
-          {snapshot !== '' && <button onClick={deleteSnapshot}>Delete</button>}
-          <input type="text" ref={snapshotNameRef} />
-          {config && config.images && config.images.length > 0 && (
-            <select onChange={selectSnapshot} value={snapshot}>
-              <option>Select a snapshot</option>
-              {config.images.map(({ name, commits }, index) => (
-                <option
-                  onContextMenu={console.info}
-                  value={JSON.stringify({
-                    name,
-                    commits,
-                  })}
-                  key={index}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          )}
+          <div className="actions-container">
+            <button onClick={sendGrid} title="Push image">
+              <Rocket />
+            </button>
+            <button onClick={generateScript} title="Download shell script">
+              <Download />
+            </button>
+            <button onClick={clearGrid} title="Wipe grid">
+              <Erase />
+            </button>
+            <input type="text" ref={snapshotNameRef} />
+            <button onClick={saveSnapshot} title="Save image configuration">
+              <Save />
+            </button>
+            {config && config.images && config.images.length > 0 && (
+              <select onChange={selectSnapshot} value={snapshot}>
+                <option>Select a snapshot</option>
+                {config.images.map(({ name, commits }, index) => (
+                  <option
+                    onContextMenu={console.info}
+                    value={JSON.stringify({
+                      name,
+                      commits,
+                    })}
+                    key={index}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {snapshot !== '' && (
+              <button
+                onClick={deleteSnapshot}
+                title="Delete image configuration">
+                <Delete />
+              </button>
+            )}
+          </div>
           <SettingsDrawer {...config} />
         </Fragment>
       )}

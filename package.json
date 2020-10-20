@@ -14,7 +14,7 @@
   ],
   "main": "main.js",
   "scripts": {
-    "predev": "parcel build src/markup/index.pug --target electron -d app --public-url ./",
+    "predev": "cross-env NODE_ENV=development parcel build src/markup/index.pug --target electron -d app --public-url ./",
     "dev": "browser-sync start --server app --files app --no-open & parcel watch src/markup/index.pug --target electron -d app --public-url ./ & cross-env NODE_ENV=development nodemon --ignore src/ --ignore vincent-van-git.config.json --ignore app/ --exec \"electron .\"",
     "preprod": "cross-env NODE_ENV=production parcel build src/markup/index.pug --target electron -d app --public-url ./",
     "prod": "electron .",
@@ -22,6 +22,7 @@
     "package": "electron-packager . --out=./release-build"
   },
   "dependencies": {
+    "@svgr/parcel-plugin-svgr": "^5.4.0",
     "cheerio": "^1.0.0-rc.3",
     "electron-dl": "^3.0.2",
     "luxon": "^1.25.0",
