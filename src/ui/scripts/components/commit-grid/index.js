@@ -3,7 +3,7 @@ import './commit-grid.styl'
 
 const MAX_LEVEL = 4
 
-export default function CommitGrid({ cells }) {
+export default function CommitGrid({ cells, onChange }) {
   const gridRef = useRef(null)
   const rendered = useRef(null)
   const erasing = useRef(null)
@@ -28,6 +28,7 @@ export default function CommitGrid({ cells }) {
         cell.setAttribute('data-level', Math.min(MAX_LEVEL, LEVEL + 1))
         cells[INDEX] = Math.min(MAX_LEVEL, LEVEL + 1)
       }
+      if (onChange) onChange()
     }
   }
 

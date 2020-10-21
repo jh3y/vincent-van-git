@@ -1,0 +1,71 @@
+* {
+  box-sizing: border-box;
+  touch-action: none;
+}
+
+:root {
+  --green-one: hsl(130, 64%, 76%);
+  --green-two: hsl(136, 53%, 51%);
+  --green-three: hsl(136, 54%, 41%);
+  --green-four: hsl(139, 54%, 28%);
+  --grey: hsl(216, 14%, 93%);
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(0, 0%, 100%);
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: 0;
+}
+
+.app .actions-container {
+  margin-top: 15px;
+  display: flex;
+}
+
+.actions-container > * + *,
+.configuration-container > * + * {
+  margin-left: 15px;
+}
+
+.icon-button {
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--grey);
+  }
+}
+
+.configuration-container {
+  -webkit-clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
+  clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
+  transition: clip-path 0.25s;
+  display: flex;
+  border-left: 2px solid var(--grey);
+  padding-left: 15px;
+}
+
+select,
+input {
+  height: 44px;
+  margin: 0;
+  padding: 0 15px;
+}
+
+select,
+input,
+button {
+  outline: transparent;
+}

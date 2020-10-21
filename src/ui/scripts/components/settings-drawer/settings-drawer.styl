@@ -1,0 +1,20 @@
+.settings-drawer {
+  position: fixed;
+  top: 0;
+  right: 100%;
+  width: 220px;
+  height: 100%;
+  background: var(--grey);
+  box-shadow: -4px 0 20px -10px hsl(0, 0%, 10%) inset;
+}
+
+body {
+  transform: translate(calc((var(--open) * 220) * 1px), 0);
+  transition: transform 0.25s;
+}
+
+.settings-drawer__toggle {
+  position: absolute;
+  left: 100%;
+  top: 0;
+}
