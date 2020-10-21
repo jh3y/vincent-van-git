@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = require('electron')
 import { useForm } from 'react-hook-form'
 import Cog from '../icons/cog.svg'
+import { MESSAGING_CONSTANTS } from '../../../../constants'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
+  const drawerRef = useRef(null)
   const { handleSubmit, register, setValue } = useForm()
   const onSubmit = (values) => {
-    ipcRenderer.send('update-config', values)
+    ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, values)
   }
   const [open, setOpen] = useState(false)
 
@@ -21,14 +23,37 @@ const SettingsDrawer = (props) => {
     }
   }, [props.username, props.repository, props.branch])
 
+  useEffect(() => {
+    ipcRenderer.on(MESSAGING_CONSTANTS.UPDATED, (event, args) => {
+      setOpen(false)
+      alert(args.message)
+    })
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--open', open ? 1 : 0)
+    const handleClick = ({ target }) => {
+      if (drawerRef.current !== target && !drawerRef.current.contains(target)) {
+        setOpen(false)
+      }
+    }
+    if (open) {
+      document.addEventListener('click', handleClick)
+    } else {
+      document.removeEventListener('click', handleClick)
+    }
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [open])
+
   return (
-    <div
-      className="settings-drawer"
-      style={{
-        '--open': open ? 1 : 0,
-      }}>
-      <button title={`${open ? 'Close' : 'Open'} settings`} className="settings-drawer__toggle" onClick={toggleMenu}>
-        <Cog/>
+    <div className="settings-drawer" ref={drawerRef}>
+      <button
+        title={`${open ? 'Close' : 'Open'} settings`}
+        className="settings-drawer__toggle icon-button"
+        onClick={toggleMenu}>
+        <Cog />
       </button>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form__field">

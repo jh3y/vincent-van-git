@@ -6,6 +6,7 @@ const { execSync } = require('child_process')
 const { scrapeCommits } = require('./scrape-commits')
 const { app, BrowserWindow } = require('electron')
 const { download } = require('electron-dl')
+const { MESSAGING_CONSTANTS } = require('../constants')
 
 const REPO_DIR = '.repo-to-push'
 const TMP_DIR = app.getPath('temp')
@@ -164,8 +165,8 @@ const paintCommitsNode = async (
 
 const broadcast = async ({ username, repository, branch, commits }, event) => {
   // Before we do anything, disable the front end.
-  event.reply('vvg-progress', {
-    progress: 0,
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    uploading: true
   })
   // Validation stuff.
   try {
@@ -189,11 +190,11 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
 
     await paintCommitsNode(commits, username, repository, branch, event)
 
-    event.reply('vvg-progress', {
-      progress: 100,
+    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+      uploading:false ,
     })
   } catch (err) {
-    event.reply('vvg-error', {
+    event.reply(MESSAGING_CONSTANTS.ERROR, {
       message: err,
     })
   }

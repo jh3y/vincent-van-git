@@ -1,8 +1,8 @@
 const url = require('url')
 const path = require('path')
-const { APP_CONSTANTS } = require('./src/constants')
-const { broadcast, downloadShellScript } = require('./broadcaster')
-const { readConfig, writeConfig } = require('./config-utility')
+const { APP_CONSTANTS, MESSAGING_CONSTANTS } = require('./src/constants')
+const { broadcast, downloadShellScript } = require('./src/node/broadcaster')
+const { readConfig, saveConfig, writeConfig } = require('./src/node/config-utility')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
 let mainWindow
@@ -15,76 +15,35 @@ if (
   isDev = true
 }
 
-const saveSnapshot = async (name, commits, event) => {
-  try {
-    const CONFIG = await readConfig()
-    // Here, check that if name exists.
-    // Check if CONFIG.images contains something with
-    // that name or combination of commits.
-    // If it does contain the commits, do nothing.
-    // If it contains the name, update it after a confirm.
-
-    let newImages = CONFIG.images ? [...CONFIG.images] : []
-    // Filter for the name.
-    const EXISTS_BY_NAME =
-      newImages.filter((image) => image.name === name).length > 0
-    const EXISTS_BY_VALUE =
-      newImages.filter(
-        (image) => JSON.stringify(image.commits) === JSON.stringify(commits)
-      ).length > 0
-    // console.info(EXISTS_BY_VALUE, EXISTS_BY_NAME, name, commits)
-    if (EXISTS_BY_VALUE) {
-      throw Error('VVG: Snapshot already saved!')
-    } else if (EXISTS_BY_NAME) {
-      newImages = newImages.map((image) => ({
-        name: image.name,
-        commits: image.name === name ? commits : image.commits,
-      }))
-    } else {
-      newImages = [...newImages, { name, commits }]
-    }
-
-    const NEW_CONFIG = {
-      ...CONFIG,
-      images: newImages,
-    }
-    await writeConfig(NEW_CONFIG)
-    event.reply('snapshot-saved', {
-      message: `VVG: Snapshot ${EXISTS_BY_NAME ? 'updated' : 'saved'}!`,
-      config: NEW_CONFIG,
-      saved: JSON.stringify({ name, commits }),
-    })
-  } catch (err) {
-    if (!name || !commits) throw Error('VVG: No name or commits passed')
-    else throw Error(err)
-  }
-}
-
-ipcMain.on('generate-script', async (event, { commits }) => {
+ipcMain.on(MESSAGING_CONSTANTS.GENERATE, async (event, { commits }) => {
   try {
     const { username, repository, branch } = await readConfig()
     await downloadShellScript(commits, username, repository, branch)
-    event.reply('script-downloaded', {
+    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
       message: 'Script downloaded',
     })
   } catch (err) {
-    event.reply('vvg-error', {
+    event.reply(MESSAGING_CONSTANTS.ERROR, {
       message: err
     })
   }
 })
 
-ipcMain.on('save-snapshot', async (event, { name, commits }) => {
+ipcMain.on(MESSAGING_CONSTANTS.DELETE, async (event, { name }) => {
+  console.info('DELETE', name)
+})
+
+ipcMain.on(MESSAGING_CONSTANTS.SAVE, async (event, { name, commits }) => {
   try {
-    await saveSnapshot(name, commits, event)
+    await saveConfig(name, commits, event)
   } catch (err) {
-    event.reply('snapshot-save-fail', {
+    event.reply(MESSAGING_CONSTANTS.ERROR, {
       message: err,
     })
   }
 })
 
-ipcMain.on('message-send', async (event, { name, commits }) => {
+ipcMain.on(MESSAGING_CONSTANTS.PUSH, async (event, { name, commits }) => {
   try {
     // Silent save with a timestamp???
     // await saveSnapshot(name, commits)
@@ -101,22 +60,27 @@ ipcMain.on('message-send', async (event, { name, commits }) => {
   }
 })
 
-ipcMain.on('update-config', async (event, message) => {
+ipcMain.on(MESSAGING_CONSTANTS.UPDATE, async (event, message) => {
+  // Issue here. Writing to nothing. Can't read empty!
+  // If not empty, overrides configurations.
   await writeConfig(message)
-  const CONFIG = await readConfig()
-  console.info(CONFIG)
+  event.reply(MESSAGING_CONSTANTS.UPDATED, {
+    message: 'User settings updated'
+  })
 })
 
-ipcMain.handle('grab-config', async () => {
+ipcMain.handle(MESSAGING_CONSTANTS.CONFIG, async () => {
   const CONFIG = await readConfig()
   return CONFIG
 })
 
+// Electron Boilerplate stuff
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: APP_CONSTANTS.WIDTH,
     height: APP_CONSTANTS.HEIGHT,
     show: false,
+    useContentSize: true,
     resizable: isDev,
     icon: `${__dirname}/assets/icon.png`,
     webPreferences: {
