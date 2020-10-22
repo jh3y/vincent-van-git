@@ -1,17 +1,20 @@
 const { app } = require('electron')
 const { MESSAGING_CONSTANTS } = require('../constants')
 const fs = require('fs')
-const CONFIG_PATH = `${app.getAppPath()}/vincent-van-git.config.json`
+const CONFIG_PATH = `${
+  process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
+    ? app.getAppPath()
+    : app.getPath('userData')
+}/vincent-van-git.config.json`
 
 const writeConfig = async (config) => {
   const CURRENT_CONFIG = await readConfig()
-  await fs.promises.writeFile(
-    CONFIG_PATH,
-    JSON.stringify({
-      ...CURRENT_CONFIG,
-      ...config,
-    })
-  )
+  const NEW_CONFIG = {
+    ...CURRENT_CONFIG,
+    ...config,
+  }
+  await fs.promises.writeFile(CONFIG_PATH, JSON.stringify(NEW_CONFIG))
+  return NEW_CONFIG
 }
 
 const readConfig = async () => {
@@ -20,7 +23,7 @@ const readConfig = async () => {
     return JSON.parse(DATA)
   } catch (err) {
     console.info('VVG: No config so creating one')
-    await writeConfig({})
+    await fs.promises.writeFile(CONFIG_PATH, JSON.stringify({}))
     return {}
   }
 }

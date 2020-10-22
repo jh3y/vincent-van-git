@@ -16,11 +16,15 @@ if (
 }
 
 ipcMain.on(MESSAGING_CONSTANTS.GENERATE, async (event, { commits }) => {
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    uploading: true,
+  })
   try {
     const { username, repository, branch } = await readConfig()
     await downloadShellScript(commits, username, repository, branch)
     event.reply(MESSAGING_CONSTANTS.MESSAGE, {
       message: 'Script downloaded',
+      uploading: false,
     })
   } catch (err) {
     event.reply(MESSAGING_CONSTANTS.ERROR, {
@@ -44,28 +48,40 @@ ipcMain.on(MESSAGING_CONSTANTS.SAVE, async (event, { name, commits }) => {
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.PUSH, async (event, { name, commits }) => {
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    uploading: true,
+  })
   try {
     // Silent save with a timestamp???
     // await saveSnapshot(name, commits)
     const CONFIG = await readConfig()
-    broadcast(
+    await broadcast(
       {
         ...CONFIG,
         commits,
       },
       event
     )
+    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+      message: 'Commits pushed up',
+      uploading: false,
+    })
   } catch (err) {
-    console.error(err)
+    event.reply(MESSAGING_CONSTANTS.ERROR, {
+      message: err,
+    })
   }
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.UPDATE, async (event, message) => {
   // Issue here. Writing to nothing. Can't read empty!
   // If not empty, overrides configurations.
-  await writeConfig(message)
+  const CONFIG = await writeConfig(message)
   event.reply(MESSAGING_CONSTANTS.UPDATED, {
     message: 'User settings updated'
+  })
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    config: CONFIG
   })
 })
 

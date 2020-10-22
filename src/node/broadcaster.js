@@ -164,10 +164,6 @@ const paintCommitsNode = async (
 }
 
 const broadcast = async ({ username, repository, branch, commits }, event) => {
-  // Before we do anything, disable the front end.
-  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    uploading: true
-  })
   // Validation stuff.
   try {
     // Check for git
@@ -190,13 +186,8 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
 
     await paintCommitsNode(commits, username, repository, branch, event)
 
-    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-      uploading:false ,
-    })
   } catch (err) {
-    event.reply(MESSAGING_CONSTANTS.ERROR, {
-      message: err,
-    })
+    throw Error(err)
   }
 }
 
