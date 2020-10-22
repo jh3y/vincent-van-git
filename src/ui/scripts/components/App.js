@@ -31,6 +31,17 @@ const App = () => {
     setDirty(true)
   }
 
+  const sanitizeDays = (commitArray, cellAmount) => {
+    let commits = [...commitArray]
+    if (commits.length < cellAmount) {
+      commits = [...commits, ...new Array(cellAmount - commits.length).fill().map(c => 0)]
+    }
+    if (commits.length > cellAmount) {
+      commits = commits.slice(0, cellAmount)
+    }
+    return commits
+  }
+
   const checkDirty = () => {
     setDirty(cellsRef.current.filter((cell) => cell !== 0).length > 0)
   }
@@ -73,7 +84,7 @@ const App = () => {
     `
     if (confirm(MSG)) {
       ipcRenderer.send(MESSAGING_CONSTANTS.PUSH, {
-        commits: cellsRef.current,
+        commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
         name: snapshotNameRef.current.value,
       })
     }
@@ -81,7 +92,7 @@ const App = () => {
 
   const generateScript = () => {
     ipcRenderer.send(MESSAGING_CONSTANTS.GENERATE, {
-      commits: cellsRef.current,
+      commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
     })
   }
 
@@ -93,7 +104,7 @@ const App = () => {
         // Receive in a message from BE
         setUploading(true)
       }
-      if (arg.uploading) {
+      if (arg.hasOwnProperty('uploading')) {
         setUploading(arg.uploading)
       }
       if (arg.message) {
