@@ -1,6 +1,6 @@
 const APP_CONSTANTS = {
   WIDTH: 943,
-  HEIGHT: 266
+  HEIGHT: 360
 }
 
 const MESSAGING_CONSTANTS = {

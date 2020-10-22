@@ -1,6 +1,7 @@
 * {
   box-sizing: border-box;
   touch-action: none;
+  font-family: monospace;
 }
 
 :root {
@@ -9,16 +10,20 @@
   --green-three: hsl(136, 54%, 41%);
   --green-four: hsl(139, 54%, 28%);
   --grey: hsl(216, 14%, 93%);
+  --color: hsl(0, 0%, 40%);
+  --padding: 16px;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: monospace;
   padding: 0;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: hsl(0, 0%, 15%);
   background-color: hsl(0, 0%, 100%);
+  min-height: 360px;
 }
 
 button {
@@ -28,13 +33,13 @@ button {
 }
 
 .app .actions-container {
-  margin-top: 15px;
+  margin-top: var(--padding);
   display: flex;
 }
 
 .actions-container > * + *,
 .configuration-container > * + * {
-  margin-left: 15px;
+  margin-left: var(--padding);
 }
 
 .icon-button {
@@ -46,6 +51,23 @@ button {
   &:hover {
     background: var(--grey);
   }
+
+  &:active path {
+    fill: var(--green-two);
+  }
+
+  path {
+    fill: var(--green-four);
+    transition: fill 0.2s;
+  }
+
+  &[disabled] {
+    cursor: not-allowed;
+    background: transparent;
+    path {
+      fill: var(--grey);
+    }
+  }
 }
 
 .configuration-container {
@@ -54,18 +76,73 @@ button {
   transition: clip-path 0.25s;
   display: flex;
   border-left: 2px solid var(--grey);
-  padding-left: 15px;
+  padding-left: var(--padding);
 }
 
 select,
 input {
   height: 44px;
   margin: 0;
-  padding: 0 15px;
+  padding: 0 var(--padding);
 }
 
 select,
 input,
 button {
   outline: transparent;
+}
+
+select,
+input {
+  border: 2px solid var(--grey);
+  border-radius: 6px;
+  color: var(--color);
+}
+
+input::placeholder {
+  color: hsl(0, 0%, 80%);
+}
+
+// Select styling
+.select-wrapper {
+  border: 2px solid var(--grey);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+
+  &:after {
+    content: "";
+    height: 8px;
+    width: 12px;
+    background: var(--color);
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translate(0, -30%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 50% 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  select {
+    color: var(--color);
+    -webkit-appearance: none;
+    appearance: none;
+    border: 0;
+    padding: 0 30px 0 var(--padding);
+    height: 40px;
+  }
+}
+
+.spinner {
+  margin-top: 1rem;
+  height: 25vmin;
+  width: 25vmin;
+  border: 10px dashed red;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

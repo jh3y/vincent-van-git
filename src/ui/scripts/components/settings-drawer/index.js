@@ -55,39 +55,37 @@ const SettingsDrawer = (props) => {
         onClick={toggleMenu}>
         <Cog />
       </button>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="form__field">
+      <form className="settings-drawer__form" onSubmit={handleSubmit(onSubmit)}>
+        <h2>Settings</h2>
+        <div className="settings-drawer__form-field">
           <label htmlFor="username">Username</label>
           <input
             id="username"
             name="username"
-            ref={register({
-              required: 'Required',
-            })}
+            required
+            ref={register()}
           />
         </div>
-        <div className="form__field">
+        <div className="settings-drawer__form-field">
           <label htmlFor="repository">Repository</label>
           <input
             id="repository"
             name="repository"
-            ref={register({
-              required: 'Required',
-            })}
+            required
+            ref={register()}
           />
         </div>
-        <div className="form__field">
+        <div className="settings-drawer__form-field">
           <label htmlFor="branch">Branch</label>
           <input
             id="branch"
+            required
             name="branch"
-            ref={register({
-              required: 'Required',
-            })}
+            ref={register()}
           />
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit">Save</button>
       </form>
     </div>
   )

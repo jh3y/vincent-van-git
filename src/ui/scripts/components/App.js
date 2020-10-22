@@ -21,7 +21,7 @@ const App = () => {
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
   const snapshotNameRef = useRef(null)
 
-  const selectSnapshot = (e) => {
+  const selectConfiguration = (e) => {
     setSnapshot(e.target.value) // Could be set to the Object???
     if (e.target.value === 'Select a snapshot') return
     const { name, commits } = JSON.parse(e.target.value)
@@ -93,6 +93,9 @@ const App = () => {
         // Receive in a message from BE
         setUploading(true)
       }
+      if (arg.uploading) {
+        setUploading(arg.uploading)
+      }
       if (arg.message) {
         alert(arg.message)
       }
@@ -130,14 +133,24 @@ const App = () => {
           />
           <div className="actions-container">
             <button
-              disabled={!dirty}
+              disabled={
+                !dirty ||
+                !config.username ||
+                !config.repository ||
+                !config.branch
+              }
               className="icon-button"
               onClick={sendGrid}
               title="Push image">
               <Rocket />
             </button>
             <button
-              disabled={!dirty}
+              disabled={
+                !dirty ||
+                !config.username ||
+                !config.repository ||
+                !config.branch
+              }
               className="icon-button"
               onClick={generateScript}
               title="Download shell script">
@@ -151,20 +164,22 @@ const App = () => {
               <Erase />
             </button>
             {config && config.images && config.images.length > 0 && (
-              <select onChange={selectSnapshot} value={snapshot}>
-                <option>Select a snapshot</option>
-                {config.images.map(({ name, commits }, index) => (
-                  <option
-                    onContextMenu={console.info}
-                    value={JSON.stringify({
-                      name,
-                      commits,
-                    })}
-                    key={index}>
-                    {name}
-                  </option>
-                ))}
-              </select>
+              <div className="select-wrapper">
+                <select onChange={selectConfiguration} value={snapshot}>
+                  <option>Select Configuration</option>
+                  {config.images.map(({ name, commits }, index) => (
+                    <option
+                      onContextMenu={console.info}
+                      value={JSON.stringify({
+                        name,
+                        commits,
+                      })}
+                      key={index}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
             <div
               className="configuration-container"
@@ -196,7 +211,12 @@ const App = () => {
           <SettingsDrawer {...config} />
         </Fragment>
       )}
-      {uploading && <h1>Commits being generated, please wait.</h1>}
+      {uploading && (
+        <Fragment>
+          <h1>Commits being generated, please wait.</h1>
+          <div className="spinner"></div>
+        </Fragment>
+      )}
     </div>
   )
 }
