@@ -7,7 +7,10 @@ const { scrapeCommits } = require('./scrape-commits')
 const { app, BrowserWindow } = require('electron')
 const { download } = require('electron-dl')
 const { MESSAGING_CONSTANTS } = require('../constants')
-
+const isDev =
+  process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
+    ? true
+    : false
 const REPO_DIR = '.repo-to-push'
 const TMP_DIR = app.getPath('temp')
 const APP_DIR = app.getAppPath()
@@ -73,12 +76,7 @@ git init
   return SCRIPT
 }
 
-const downloadShellScript = async (
-  commits,
-  username,
-  repository,
-  branch,
-) => {
+const downloadShellScript = async (commits, username, repository, branch) => {
   // Checks that things exist before proceeding
   await validateConfig(username, repository, branch)
   const IS_EMPTY = await isEmptyRepo(username, repository)
@@ -91,9 +89,12 @@ const downloadShellScript = async (
     REPO_DIR
   )
   const WIN = BrowserWindow.getFocusedWindow()
-  const FILE_URL = `${process.cwd()}/vincent-van-git.sh`
+  const FILE_URL = `${
+    isDev ? process.cwd() : app.getPath('temp')
+  }/vincent-van-git.sh`
   await fs.promises.writeFile(FILE_URL, SCRIPT)
   await download(WIN, `file:///${FILE_URL}`)
+  await fs.promises.unlink(FILE_URL)
 }
 
 const isEmptyRepo = async (username, repository) => {
@@ -185,7 +186,6 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
       throw Error('Vincent van Git: Github branch does not exist!')
 
     await paintCommitsNode(commits, username, repository, branch, event)
-
   } catch (err) {
     throw Error(err)
   }
@@ -193,5 +193,5 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
 
 module.exports = {
   broadcast,
-  downloadShellScript
+  downloadShellScript,
 }
