@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { ipcRenderer } from 'electron'
+import gsap from 'gsap'
 import CommitGrid from './commit-grid'
 import SettingsDrawer from './settings-drawer'
 import Save from './icons/content-save.svg'
@@ -7,25 +8,33 @@ import Delete from './icons/delete.svg'
 import Download from './icons/download.svg'
 import Erase from './icons/eraser-variant.svg'
 import Rocket from './icons/rocket.svg'
+import useSound from '../hooks/useSound'
+import CLICK_PATH from '../../../assets/audio/click.mp3'
 import { MESSAGING_CONSTANTS } from '../../../constants'
+
+const SELECT_PLACEHOLDER = 'Select Configuration'
+const INPUT_PLACEHOLDER = 'Configuration Name'
 
 const App = () => {
   const [dirty, setDirty] = useState(false)
-  const [snapshot, setSnapshot] = useState('')
+  const [image, setImage] = useState('')
   const [config, setConfig] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [imageName, setImageName] = useState('')
+  const { play: clickPlay } = useSound(CLICK_PATH)
   // Cleared is used to set the key on the CommitGrid which forces it
   // to re-render the cell reference.
   const [cleared, setCleared] = useState(new Date().toUTCString())
   const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
-  const snapshotNameRef = useRef(null)
+  const spinnerRef = useRef(null)
 
-  const selectConfiguration = (e) => {
-    setSnapshot(e.target.value) // Could be set to the Object???
-    if (e.target.value === 'Select a snapshot') return
+  const selectImage = (e) => {
+    clickPlay()
+    setImage(e.target.value) // Could be set to the Object???
+    if (e.target.value === SELECT_PLACEHOLDER) return
     const { name, commits } = JSON.parse(e.target.value)
-    snapshotNameRef.current.value = name
+    setImageName(name)
     cellsRef.current = commits.map((value) => parseInt(value, 10))
     setCleared(new Date().toUTCString())
     setDirty(true)
@@ -47,50 +56,59 @@ const App = () => {
   }
 
   const clearGrid = () => {
-    if (confirm('Are you sure you wish to clear the grid?')) {
+    clickPlay()
+    if (confirm('Clear grid?')) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
-      setSnapshot('') // Setting to empty string to select default.
-      snapshotNameRef.current.value = ''
+      setImage('') // Setting to empty string to select default.
+      setImageName('')
+      // imageNameRef.current.value = ''
       setCleared(new Date().toUTCString())
       setDirty(false)
     }
   }
 
-  const deleteSnapshot = () => {
+  const deleteImage = () => {
+    clickPlay()
     if (
-      confirm(`Are you sure you want to delete ${JSON.parse(snapshot).name}?`)
+      confirm(`Delete ${JSON.parse(image).name}?`)
     ) {
+      setImage('')
+      // imageNameRef.current.value = ''
+      setImageName('')
       ipcRenderer.send(MESSAGING_CONSTANTS.DELETE, {
-        name: JSON.parse(snapshot).name,
+        name: JSON.parse(image).name,
       })
     }
   }
 
-  const saveSnapshot = () => {
+  const saveImage = () => {
+    clickPlay()
     if (
-      snapshotNameRef.current.value.trim() !== '' &&
+      imageName.trim() !== '' &&
       cellsRef.current.filter((cell) => cell !== 0).length
     ) {
       ipcRenderer.send(MESSAGING_CONSTANTS.SAVE, {
         commits: cellsRef.current,
-        name: snapshotNameRef.current.value,
+        name: imageName,
       })
     }
   }
 
   const sendGrid = () => {
+    clickPlay()
     const MSG = `
-      Push commits to Github?
+      Push to Github?
     `
     if (confirm(MSG)) {
       ipcRenderer.send(MESSAGING_CONSTANTS.PUSH, {
         commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
-        name: snapshotNameRef.current.value,
+        name: imageName,
       })
     }
   }
 
   const generateScript = () => {
+    clickPlay()
     ipcRenderer.send(MESSAGING_CONSTANTS.GENERATE, {
       commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
     })
@@ -116,7 +134,7 @@ const App = () => {
       }
       if (arg.saved) {
         // This keeps the select in sync
-        setSnapshot(arg.saved)
+        setImage(arg.saved)
       }
     })
     ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
@@ -132,6 +150,18 @@ const App = () => {
     }
     grabConfig()
   }, [])
+
+  useEffect(() => {
+    let TIMELINE
+    if (uploading && spinnerRef.current) {
+      TIMELINE = gsap.timeline().to(spinnerRef.current, {
+        rotate: 360,
+        repeat: -1
+      })
+    } else if (TIMELINE) {
+      TIMELINE.pause()
+    }
+  }, [uploading])
 
   return (
     <div className="app">
@@ -152,7 +182,7 @@ const App = () => {
               }
               className="icon-button"
               onClick={sendGrid}
-              title="Push image">
+              title="Push Image">
               <Rocket />
             </button>
             <button
@@ -164,23 +194,22 @@ const App = () => {
               }
               className="icon-button"
               onClick={generateScript}
-              title="Download shell script">
+              title="Download Shell Script">
               <Download />
             </button>
             <button
               disabled={!dirty}
               className="icon-button"
               onClick={clearGrid}
-              title="Wipe grid">
+              title="Wipe Grid">
               <Erase />
             </button>
             {config && config.images && config.images.length > 0 && (
               <div className="select-wrapper">
-                <select onChange={selectConfiguration} value={snapshot}>
-                  <option>Select Configuration</option>
+                <select onClick={clickPlay} onChange={selectImage} value={image}>
+                  <option>{SELECT_PLACEHOLDER}</option>
                   {config.images.map(({ name, commits }, index) => (
                     <option
-                      onContextMenu={console.info}
                       value={JSON.stringify({
                         name,
                         commits,
@@ -200,20 +229,22 @@ const App = () => {
               }}>
               <input
                 type="text"
-                placeholder="Configuration name"
-                ref={snapshotNameRef}
+                placeholder={INPUT_PLACEHOLDER}
+                onChange={e => setImageName(e.target.value)}
+                value={imageName}
               />
               <button
+                disabled={imageName.trim() === ''}
                 className="icon-button"
-                onClick={saveSnapshot}
+                onClick={saveImage}
                 title="Save image configuration">
                 <Save />
               </button>
-              {snapshot !== '' && (
+              {image !== '' && (
                 <button
                   className="icon-button"
-                  onClick={deleteSnapshot}
-                  title="Delete image configuration">
+                  onClick={deleteImage}
+                  title="Delete Image Configuration">
                   <Delete />
                 </button>
               )}
@@ -225,7 +256,7 @@ const App = () => {
       {uploading && (
         <Fragment>
           <h1>Commits being generated, please wait.</h1>
-          <div className="spinner"></div>
+          <div ref={spinnerRef} className="spinner"></div>
         </Fragment>
       )}
     </div>

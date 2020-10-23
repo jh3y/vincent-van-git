@@ -1,12 +1,12 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
 const { DateTime } = require('luxon')
-const { cd, echo, rm, which } = require('shelljs')
+const { cd, rm, which } = require('shelljs')
 const { execSync } = require('child_process')
 const { scrapeCommits } = require('./scrape-commits')
 const { app, BrowserWindow } = require('electron')
 const { download } = require('electron-dl')
-const { MESSAGING_CONSTANTS } = require('../constants')
+
 const isDev =
   process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
     ? true
@@ -47,7 +47,6 @@ const generateShellScript = async (
   branch,
   repoPath
 ) => {
-  console.info('COMMITS', commits)
   const START_DAY = TODAY.minus({ days: commits.length - 1 })
   const COMMIT_MULTIPLIER = await scrapeCommits(username)
   let SCRIPT = `mkdir ${repoPath}
@@ -113,6 +112,7 @@ const paintCommitsNode = async (
   branch,
   event
 ) => {
+  console.info(REPO_LOCATION)
   const IS_EMPTY = await isEmptyRepo(username, repository)
   if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
   const COMMIT_MULTIPLIER = await scrapeCommits(username)

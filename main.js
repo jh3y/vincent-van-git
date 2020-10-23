@@ -2,7 +2,11 @@ const url = require('url')
 const path = require('path')
 const { APP_CONSTANTS, MESSAGING_CONSTANTS } = require('./src/constants')
 const { broadcast, downloadShellScript } = require('./src/node/broadcaster')
-const { readConfig, saveConfig, writeConfig } = require('./src/node/config-utility')
+const {
+  readConfig,
+  saveConfig,
+  writeConfig,
+} = require('./src/node/config-utility')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
 let mainWindow
@@ -28,13 +32,23 @@ ipcMain.on(MESSAGING_CONSTANTS.GENERATE, async (event, { commits }) => {
     })
   } catch (err) {
     event.reply(MESSAGING_CONSTANTS.ERROR, {
-      message: err
+      message: err,
     })
   }
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.DELETE, async (event, { name }) => {
   console.info('DELETE', name)
+  const CONFIG = await readConfig()
+  const NEW_CONFIG = {
+    ...CONFIG,
+    images: CONFIG.images.filter((image) => image.name !== name),
+  }
+  await writeConfig(NEW_CONFIG)
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    message: 'Configuration Deleted',
+    config: NEW_CONFIG
+  })
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.SAVE, async (event, { name, commits }) => {
@@ -78,10 +92,10 @@ ipcMain.on(MESSAGING_CONSTANTS.UPDATE, async (event, message) => {
   // If not empty, overrides configurations.
   const CONFIG = await writeConfig(message)
   event.reply(MESSAGING_CONSTANTS.UPDATED, {
-    message: 'User settings updated'
+    message: 'User settings updated',
   })
   event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    config: CONFIG
+    config: CONFIG,
   })
 })
 
@@ -98,7 +112,7 @@ function createMainWindow() {
     show: false,
     useContentSize: true,
     resizable: isDev,
-    icon: `${__dirname}/assets/icon.png`,
+    icon: `${__dirname}/src/assets/images/icon.png`,
     webPreferences: {
       nodeIntegration: true,
     },
