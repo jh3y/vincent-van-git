@@ -25,6 +25,7 @@
     "@svgr/parcel-plugin-svgr": "^5.4.0",
     "cheerio": "^1.0.0-rc.3",
     "electron-dl": "^3.0.2",
+    "gsap": "^3.5.1",
     "luxon": "^1.25.0",
     "node-fetch": "^2.6.1",
     "react": "^16.13.1",

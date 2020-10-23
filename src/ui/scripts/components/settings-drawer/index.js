@@ -3,17 +3,21 @@ const { ipcRenderer } = require('electron')
 import { useForm } from 'react-hook-form'
 import Cog from '../icons/cog.svg'
 import { MESSAGING_CONSTANTS } from '../../../../constants'
+import useSound from '../../hooks/useSound'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
+  const { play: clickPlay } = useSound('https://assets.codepen.io/605876/click.mp3')
   const drawerRef = useRef(null)
   const { handleSubmit, register, setValue } = useForm()
   const onSubmit = (values) => {
+    clickPlay()
     ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, values)
   }
   const [open, setOpen] = useState(false)
 
   const toggleMenu = () => {
+    clickPlay()
     setOpen(!open)
   }
 
