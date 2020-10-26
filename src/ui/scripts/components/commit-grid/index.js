@@ -1,12 +1,25 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
+import * as Tone from 'tone'
 import './commit-grid.styl'
 
 const MAX_LEVEL = 4
+
+const NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+const PITCH = [5, 4, 3, 2]
 
 export default function CommitGrid({ cells, onChange }) {
   const gridRef = useRef(null)
   const rendered = useRef(null)
   const erasing = useRef(null)
+  const synthRef = useRef(null)
+
+  const playNote = (index, level) => {
+    synthRef.current.triggerAttackRelease(
+      `${NOTES[index]}${PITCH[level - 1]}`,
+      '32n'
+    )
+  }
+
   const draw = (e) => {
     e.preventDefault()
     const cell =
@@ -25,8 +38,12 @@ export default function CommitGrid({ cells, onChange }) {
         cells[INDEX] = 0
       } else {
         const LEVEL = parseInt(cell.getAttribute('data-level'), 10) || 0
-        cell.setAttribute('data-level', Math.min(MAX_LEVEL, LEVEL + 1))
-        cells[INDEX] = Math.min(MAX_LEVEL, LEVEL + 1)
+        const NEW_LEVEL = Math.min(MAX_LEVEL, LEVEL + 1)
+        if (NEW_LEVEL !== LEVEL) {
+          cell.setAttribute('data-level', NEW_LEVEL)
+          cells[INDEX] = NEW_LEVEL
+          playNote(INDEX % 7, NEW_LEVEL)
+        }
       }
       if (onChange) onChange()
     }
@@ -56,6 +73,14 @@ export default function CommitGrid({ cells, onChange }) {
     e.preventDefault()
     return false
   }
+
+  useEffect(() => {
+    synthRef.current = new Tone.Synth().toDestination()
+    synthRef.current.set({
+      volume: -20
+    })
+    // console.info(synthRef.current, synthRef.current.volume)
+  }, [])
 
   return (
     <div
