@@ -32,7 +32,8 @@
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.9.2",
     "regenerator-runtime": "^0.13.7",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "tone": "^14.7.58"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
