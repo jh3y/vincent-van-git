@@ -11,6 +11,34 @@
   --green-four: hsl(139, 54%, 28%);
   --grey: hsl(216, 14%, 93%);
   --color: hsl(0, 0%, 40%);
+  --shirt: var(--green-one);
+  --shirt-shade: var(--green-two);
+  --skin: hsl(0, 30%, 95%);
+  --skin-shade: hsl(0, 20%, 80%);
+  --stroke: hsl(0, 0%, 20%);
+  --laptop: hsl(0, 0%, 78%);
+  --laptop-main: #4d4d4c;
+  --laptop-shade: rgba(58,58,59,0.5);
+  --laptop-badge: #fff;
+  --beard: #bf8040;
+  --beard: #ae6113;
+  --beard-light: #d9b38c;
+  --beard-light: #ea943e;
+  --eyes: var(--stroke);
+  --strap: #bf4040;
+  --strap: var(--green-four);
+  --cheeks: #df9f9f;
+  --cap: #404040;
+  --sparks: rgba(255,255,153,0.85);
+  --bulb: rgba(255,255,153,0.85);
+  --filament: #000;
+  --screw: #ccc;
+  --bg: #6e7c91;
+  --owl-1: #feec90;
+  --owl-2: #c6e472;
+  --owl-3: #f88a68;
+  --owl-4: #80cbc5;
+  --owl-5: #c793ec;
   --padding: 16px;
 }
 
@@ -24,6 +52,35 @@ body {
   color: hsl(0, 0%, 15%);
   background-color: hsl(0, 0%, 100%);
   min-height: 360px;
+}
+
+.app,
+.root {
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.progress-screen {
+  --right: 100;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: hsl(0, 0%, 100%);
+}
+
+.app,
+.progress-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.progress-screen {
+  -webkit-clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
+  clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
 }
 
 button {
@@ -140,3 +197,35 @@ input::placeholder {
   border: 10px dashed red;
   border-radius: 50%;
 }
+
+// label
+//   height 44px
+//   width 44px
+//   position fixed
+//   bottom 1rem
+//   right 1rem
+//   cursor pointer
+
+//   & > svg
+//     position absolute
+//     height 100%
+//     width 100%
+//     top 0
+//     left 0
+
+//   path
+//     fill hsl(216, 14%, 30%)
+
+//   svg:nth-of-type(1)
+//     display none
+
+// [type='checkbox']
+//   // opacity 0
+//   height 0
+//   width 0
+
+// :checked ~ label
+//   svg:nth-of-type(1)
+//     display block
+//   svg:nth-of-type(2)
+//     display none

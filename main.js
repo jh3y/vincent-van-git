@@ -1,7 +1,11 @@
 const url = require('url')
 const path = require('path')
 const { APP_CONSTANTS, MESSAGING_CONSTANTS } = require('./src/constants')
-const { broadcast, downloadShellScript } = require('./src/node/broadcaster')
+const {
+  broadcast,
+  downloadShellScript,
+  validateConfig,
+} = require('./src/node/broadcaster')
 const {
   readConfig,
   saveConfig,
@@ -20,12 +24,13 @@ if (
 }
 
 ipcMain.on(MESSAGING_CONSTANTS.GENERATE, async (event, { commits }) => {
-  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    uploading: true,
-  })
   try {
     const { username, repository, branch } = await readConfig()
-    await downloadShellScript(commits, username, repository, branch)
+    await validateConfig(username, repository, branch)
+    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+      uploading: true,
+    })
+    await downloadShellScript(commits, username, repository, branch, event)
     event.reply(MESSAGING_CONSTANTS.MESSAGE, {
       message: 'Script downloaded',
       uploading: false,
@@ -38,7 +43,6 @@ ipcMain.on(MESSAGING_CONSTANTS.GENERATE, async (event, { commits }) => {
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.DELETE, async (event, { name }) => {
-  console.info('DELETE', name)
   const CONFIG = await readConfig()
   const NEW_CONFIG = {
     ...CONFIG,
@@ -47,7 +51,7 @@ ipcMain.on(MESSAGING_CONSTANTS.DELETE, async (event, { name }) => {
   await writeConfig(NEW_CONFIG)
   event.reply(MESSAGING_CONSTANTS.MESSAGE, {
     message: 'Configuration Deleted',
-    config: NEW_CONFIG
+    config: NEW_CONFIG,
   })
 })
 
@@ -62,13 +66,14 @@ ipcMain.on(MESSAGING_CONSTANTS.SAVE, async (event, { name, commits }) => {
 })
 
 ipcMain.on(MESSAGING_CONSTANTS.PUSH, async (event, { name, commits }) => {
-  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    uploading: true,
-  })
   try {
     // Silent save with a timestamp???
     // await saveSnapshot(name, commits)
     const CONFIG = await readConfig()
+    await validateConfig(CONFIG.username, CONFIG.repository, CONFIG.branch)
+    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+      uploading: true,
+    })
     await broadcast(
       {
         ...CONFIG,

@@ -6,6 +6,7 @@ const { execSync } = require('child_process')
 const { scrapeCommits } = require('./scrape-commits')
 const { app, BrowserWindow } = require('electron')
 const { download } = require('electron-dl')
+const { MESSAGING_CONSTANTS } = require('../constants')
 
 const isDev =
   process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
@@ -13,14 +14,18 @@ const isDev =
     : false
 const REPO_DIR = '.repo-to-push'
 const TMP_DIR = app.getPath('temp')
-const APP_DIR = app.getAppPath()
 const BASE_DIR = process.cwd()
-const CONFIG_FILE = 'vincent-van-git.config.json'
-const SHELL_FILE = 'vincent-van-git.sh'
-const CONFIG_LOCATION = `${APP_DIR}${CONFIG_FILE}`
-const SHELL_LOCATION = `${TMP_DIR}${SHELL_FILE}`
 const REPO_LOCATION = `${TMP_DIR}${REPO_DIR}`
 const TODAY = DateTime.local()
+
+const isEmptyRepo = async (username, repository) => {
+  const PAGE = await (
+    await fetch(
+      `https://github.com/${username}/${repository}/graphs/commit-activity`
+    )
+  ).text()
+  return PAGE.indexOf('blankslate') !== -1
+}
 
 const validateConfig = async (username, repository, branch) => {
   const userRequest = await fetch(`https://github.com/${username}`)
@@ -36,6 +41,9 @@ const validateConfig = async (username, repository, branch) => {
   )
   if (branchRequest.status !== 200)
     throw Error('Vincent van Git: Github branch does not exist!')
+  const IS_EMPTY = await isEmptyRepo(username, repository)
+  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
+  return false
 }
 /**
  * Generate and write a shell script to a location.
@@ -45,7 +53,8 @@ const generateShellScript = async (
   username,
   repository,
   branch,
-  repoPath
+  repoPath,
+  event
 ) => {
   const START_DAY = TODAY.minus({ days: commits.length - 1 })
   const COMMIT_MULTIPLIER = await scrapeCommits(username)
@@ -53,16 +62,26 @@ const generateShellScript = async (
 cd ${repoPath}
 git init
 `
-  // Loop through the commitsay matching up the dates and creating empty commits
-  for (let d = 0; d < commits.length; d++) {
+  let total = 0
+  let genArr = []
+  for (let c = 0; c < commits.length; c++) {
+    const LEVEL = commits[c]
+    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
+    total += NUMBER_COMMITS
+    genArr.push(NUMBER_COMMITS)
+  }
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    numberOfCommits: total,
+  })
+  // Loop through the commits matching up the dates and creating empty commits
+  for (let d = 0; d < genArr.length; d++) {
     // Git commit structure
     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-    const LEVEL = commits[d]
-    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
-    if (NUMBER_COMMITS > 0) {
+    const COMMITS = genArr[d]
+    if (COMMITS > 0) {
       const COMMIT_DAY = START_DAY.plus({ days: d })
-      for (let c = 0; c < NUMBER_COMMITS; c++) {
-        SCRIPT += `git commit --allow-empty --date "${COMMIT_DAY.toHTTP()}" -m "Vincent paints again"\n`
+      for (let c = 0; c < COMMITS; c++) {
+        SCRIPT += `git commit --allow-empty --date "${COMMIT_DAY.toISO({includeOffset: true})}" -m "Vincent paints again"\n`
         // Debug the progress of a days commits.
         // console.info(`committing for date ${(c / NUMBER_COMMITS) * 100}%`)
       }
@@ -75,17 +94,20 @@ git init
   return SCRIPT
 }
 
-const downloadShellScript = async (commits, username, repository, branch) => {
-  // Checks that things exist before proceeding
-  await validateConfig(username, repository, branch)
-  const IS_EMPTY = await isEmptyRepo(username, repository)
-  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
+const downloadShellScript = async (
+  commits,
+  username,
+  repository,
+  branch,
+  event
+) => {
   const SCRIPT = await generateShellScript(
     commits,
     username,
     repository,
     branch,
-    REPO_DIR
+    REPO_DIR,
+    event
   )
   const WIN = BrowserWindow.getFocusedWindow()
   const FILE_URL = `${
@@ -96,15 +118,6 @@ const downloadShellScript = async (commits, username, repository, branch) => {
   await fs.promises.unlink(FILE_URL)
 }
 
-const isEmptyRepo = async (username, repository) => {
-  const PAGE = await (
-    await fetch(
-      `https://github.com/${username}/${repository}/graphs/commit-activity`
-    )
-  ).text()
-  return PAGE.indexOf('blankslate') !== -1
-}
-
 const paintCommitsNode = async (
   commits,
   username,
@@ -112,9 +125,6 @@ const paintCommitsNode = async (
   branch,
   event
 ) => {
-  console.info(REPO_LOCATION)
-  const IS_EMPTY = await isEmptyRepo(username, repository)
-  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
   const COMMIT_MULTIPLIER = await scrapeCommits(username)
   // Grab the start day
   const START_DAY = TODAY.minus({ days: commits.length - 1 })
@@ -131,15 +141,27 @@ const paintCommitsNode = async (
   // Initialise the git repo
   cd(REPO_LOCATION)
   execSync('git init')
-  // Loop through the array matching up the dates and creating empty commits
-  for (let d = 0; d < commits.length; d++) {
+
+  // Generate a total and send the information to the UI
+  let total = 0
+  let genArr = []
+  for (let c = 0; c < commits.length; c++) {
+    const LEVEL = commits[c]
+    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
+    total += NUMBER_COMMITS
+    genArr.push(NUMBER_COMMITS)
+  }
+  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
+    numberOfCommits: total,
+  })
+  // Loop through the commits matching up the dates and creating empty commits
+  for (let d = 0; d < genArr.length; d++) {
     // Git commit structure
     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-    const LEVEL = commits[d]
-    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
-    if (NUMBER_COMMITS > 0) {
+    const COMMITS = genArr[d]
+    if (COMMITS > 0) {
       const COMMIT_DAY = START_DAY.plus({ days: d })
-      for (let c = 0; c < NUMBER_COMMITS; c++) {
+      for (let c = 0; c < COMMITS; c++) {
         execSync(
           `git commit --allow-empty --date "${COMMIT_DAY.toHTTP()}" -m "Vincent paints again"`
         )
@@ -147,8 +169,6 @@ const paintCommitsNode = async (
         // console.info(`committing for date ${(c / NUMBER_COMMITS) * 100}%`)
       }
     }
-    // Debug the progress of the process.
-    // console.info(`processing ${(d / commits.length) * 100}%`)
   }
   // TODO: Communicate progress in the console and to the user on the front end.
   // It takes time, make an animation of pixel art at the laptop?
@@ -194,4 +214,5 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
 module.exports = {
   broadcast,
   downloadShellScript,
+  validateConfig,
 }
