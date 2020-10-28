@@ -3,15 +3,19 @@ import { ipcRenderer } from 'electron'
 import gsap from 'gsap'
 import CommitGrid from './commit-grid'
 import SettingsDrawer from './settings-drawer'
+import InfoDrawer from './info-drawer'
+import Toasts from './toasts'
 import Vincent from './vincent'
 import Save from './icons/content-save.svg'
 import Delete from './icons/delete.svg'
 import Download from './icons/download.svg'
 import Erase from './icons/eraser-variant.svg'
 import Rocket from './icons/rocket.svg'
+import AudioOn from './icons/volume-on.svg'
+import AudioOff from './icons/volume-off.svg'
 import useSound from '../hooks/useSound'
 import CLICK_PATH from '../../../assets/audio/click.mp3'
-import { MESSAGING_CONSTANTS } from '../../../constants'
+import { MESSAGING_CONSTANTS, MESSAGES } from '../../../constants'
 
 const SELECT_PLACEHOLDER = 'Select Configuration'
 const INPUT_PLACEHOLDER = 'Configuration Name'
@@ -40,7 +44,7 @@ const App = () => {
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
 
   const selectImage = (e) => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     setImage(e.target.value) // Could be set to the Object???
     if (e.target.value === SELECT_PLACEHOLDER) return
     const { name, commits } = JSON.parse(e.target.value)
@@ -50,6 +54,9 @@ const App = () => {
     )
     setCleared(new Date().toUTCString())
     setDirty(true)
+    ipcRenderer.send(MESSAGING_CONSTANTS.INFO, {
+      message: MESSAGES.LOADED,
+    })
   }
 
   const sanitizeDays = (commitArray, cellAmount) => {
@@ -71,21 +78,35 @@ const App = () => {
   }
 
   const clearGrid = () => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     if (confirm('Clear grid?')) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
       setImage('') // Setting to empty string to select default.
       setImageName('')
       setCleared(new Date().toUTCString())
       setDirty(false)
+      ipcRenderer.send(MESSAGING_CONSTANTS.INFO, {
+        message: MESSAGES.WIPED,
+      })
+
     }
   }
 
+  const toggleAudio = () => {
+    if (config.muted) clickPlay()
+    ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, {
+      config: {
+        ...config,
+        muted: !config.muted,
+      },
+      silent: true,
+    })
+  }
+
   const deleteImage = () => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     if (confirm(`Delete ${JSON.parse(image).name}?`)) {
       setImage('')
-      // imageNameRef.current.value = ''
       setImageName('')
       ipcRenderer.send(MESSAGING_CONSTANTS.DELETE, {
         name: JSON.parse(image).name,
@@ -94,7 +115,7 @@ const App = () => {
   }
 
   const saveImage = () => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     if (
       imageName.trim() !== '' &&
       cellsRef.current.filter((cell) => cell !== 0).length
@@ -107,7 +128,7 @@ const App = () => {
   }
 
   const sendGrid = () => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     const MSG = `
     Push to Github?
     `
@@ -122,9 +143,8 @@ const App = () => {
   }
 
   const generateScript = () => {
-    clickPlay()
+    if (!config.muted) clickPlay()
     setSubmitted(true)
-    // setCoding(true)
     setMessage('Please wait...')
     ipcRenderer.send(MESSAGING_CONSTANTS.GENERATE, {
       commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
@@ -132,40 +152,30 @@ const App = () => {
   }
 
   useEffect(() => {
-    ipcRenderer.on(MESSAGING_CONSTANTS.MESSAGE, (event, arg) => {
-      // if (arg.pushing) {
-      //   // Grab the number of commits here????
-      //   // Here set a ref number for the commits??
-      //   // Receive in a message from BE
-      //   // setUploading(true)
-      // }
+    ipcRenderer.on(MESSAGING_CONSTANTS.INFO, (event, arg) => {
       if (arg.hasOwnProperty('uploading')) {
         setUploading(arg.uploading)
       }
-      if (arg.message) {
-        // alert(arg.message)
-        console.info(arg.message)
-      }
-      if (arg.hasOwnProperty('progressMessage')) {
-        setMessage(arg.progressMessage)
-      }
       if (arg.hasOwnProperty('numberOfCommits') && arg.numberOfCommits !== 0) {
-        setMessage(
-          `${arg.numberOfCommits} commits being generated. Please wait...`
-        )
+        setMessage(`${arg.numberOfCommits} commits being generated`)
       }
       if (arg.config) {
-        // Set config to what comes from BE
+        setConfig(arg.config)
+      }
+    })
+    ipcRenderer.on(MESSAGING_CONSTANTS.SUCCESS, (event, arg) => {
+      if (arg.config) {
         setConfig(arg.config)
       }
       if (arg.saved) {
-        // This keeps the select in sync
         setImage(arg.saved)
+      }
+      if (arg.hasOwnProperty('uploading')) {
+        setUploading(arg.uploading)
       }
     })
     ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
-      setError(arg.message)
-      console.info('TOAST IT', arg.message)
+      setError(true)
     })
   }, [])
 
@@ -189,7 +199,7 @@ const App = () => {
 
   useEffect(() => {
     let timer
-    if ((!uploading && coding) || (error && coding)) {
+    if ((!uploading && coding) || (error)) {
       timer = setTimeout(() => {
         gsap.to(progressRef.current, {
           '--left': 100,
@@ -198,17 +208,14 @@ const App = () => {
             setCoding(false)
             setUploading(false)
             setSubmitted(false)
+            setError(false)
             gsap.set(progressRef.current, {
               '--left': 0,
               '--right': 100,
             })
           },
         })
-      }, TIMING.BUFFER * 1000)
-    } else if (error) {
-      setSubmitted(false)
-      setCoding(false)
-      setUploading(false)
+      }, error ? TIMING.BUFFER * 500 : TIMING.BUFFER * 1000)
     } else if (uploading && !coding) {
       setCoding(true)
     }
@@ -219,108 +226,110 @@ const App = () => {
 
   return (
     <div className="app">
-      {true && (
-        <div className="canvas-area">
-          <CommitGrid
-            onChange={checkDirty}
-            key={cleared}
-            cells={cellsRef.current}
-          />
-          <div className="actions-container">
-            <button
-              disabled={
-                !dirty ||
-                !config.username ||
-                !config.repository ||
-                !config.branch ||
-                coding ||
-                uploading ||
-                submitted
-              }
-              className="icon-button"
-              onClick={sendGrid}
-              title="Push Image">
-              <Rocket />
-            </button>
-            <button
-              disabled={
-                !dirty ||
-                !config.username ||
-                !config.repository ||
-                !config.branch ||
-                coding ||
-                uploading ||
-                submitted
-              }
-              className="icon-button"
-              onClick={generateScript}
-              title="Download Shell Script">
-              <Download />
-            </button>
-            <button
-              disabled={!dirty || coding || uploading || submitted}
-              className="icon-button"
-              onClick={clearGrid}
-              title="Wipe Grid">
-              <Erase />
-            </button>
-            {config && config.images && config.images.length > 0 && (
-              <div className="select-wrapper">
-                <select
-                  onClick={clickPlay}
-                  disabled={coding || uploading || submitted}
-                  onChange={selectImage}
-                  value={image}>
-                  <option>{SELECT_PLACEHOLDER}</option>
-                  {config.images.map(({ name, commits }, index) => (
-                    <option
-                      value={JSON.stringify({
-                        name,
-                        commits,
-                      })}
-                      key={index}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div
-              className="configuration-container"
-              style={{
-                '--scale': dirty ? 1 : 0,
-                visibility: dirty ? 'visible' : 'hidden',
-              }}>
-              <input
-                type="text"
+      <div className="canvas-area">
+        <CommitGrid
+          muted={(config && config.muted) || false}
+          onChange={checkDirty}
+          key={cleared}
+          cells={cellsRef.current}
+        />
+        <div className="actions-container">
+          <button
+            disabled={
+              !dirty ||
+              !config.username ||
+              !config.repository ||
+              !config.branch ||
+              coding ||
+              uploading ||
+              submitted
+            }
+            className="icon-button"
+            onClick={sendGrid}
+            title="Push Image">
+            <Rocket />
+          </button>
+          <button
+            disabled={
+              !dirty ||
+              !config.username ||
+              !config.repository ||
+              !config.branch ||
+              coding ||
+              uploading ||
+              submitted
+            }
+            className="icon-button"
+            onClick={generateScript}
+            title="Download Shell Script">
+            <Download />
+          </button>
+          <button
+            disabled={!dirty || coding || uploading || submitted}
+            className="icon-button"
+            onClick={clearGrid}
+            title="Wipe Grid">
+            <Erase />
+          </button>
+          {config && config.images && config.images.length > 0 && (
+            <div className="select-wrapper">
+              <select
+                onClick={() => {
+                  if (!config.muted) clickPlay()
+                }}
                 disabled={coding || uploading || submitted}
-                placeholder={INPUT_PLACEHOLDER}
-                onChange={(e) => setImageName(e.target.value)}
-                value={imageName}
-              />
-              <button
-                disabled={
-                  imageName.trim() === '' || coding || uploading || submitted
-                }
-                className="icon-button"
-                onClick={saveImage}
-                title="Save image configuration">
-                <Save />
-              </button>
-              {image !== '' && (
-                <button
-                  disabled={coding || uploading || submitted}
-                  className="icon-button"
-                  onClick={deleteImage}
-                  title="Delete Image Configuration">
-                  <Delete />
-                </button>
-              )}
+                onChange={selectImage}
+                value={image}>
+                <option>{SELECT_PLACEHOLDER}</option>
+                {config.images.map(({ name, commits }, index) => (
+                  <option
+                    value={JSON.stringify({
+                      name,
+                      commits,
+                    })}
+                    key={index}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </div>
+          )}
+          <div
+            className="configuration-container"
+            style={{
+              '--scale': dirty ? 1 : 0,
+              visibility: dirty ? 'visible' : 'hidden',
+            }}>
+            <input
+              type="text"
+              disabled={coding || uploading || submitted}
+              placeholder={INPUT_PLACEHOLDER}
+              onChange={(e) => setImageName(e.target.value)}
+              value={imageName}
+            />
+            <button
+              disabled={
+                imageName.trim() === '' || coding || uploading || submitted
+              }
+              className="icon-button"
+              onClick={saveImage}
+              title="Save image configuration">
+              <Save />
+            </button>
+            {image !== '' && (
+              <button
+                disabled={coding || uploading || submitted}
+                className="icon-button"
+                onClick={deleteImage}
+                title="Delete Image Configuration">
+                <Delete />
+              </button>
+            )}
           </div>
-          <SettingsDrawer {...config} />
         </div>
-      )}
+        <SettingsDrawer {...config} />
+        <InfoDrawer {...config} />
+      </div>
       <div
         ref={progressRef}
         className="progress-screen"
@@ -332,23 +341,20 @@ const App = () => {
             <Vincent />
           </Fragment>
         )}
-        {(coding || uploading || submitted) && <h1>{message}</h1>}
+        {(coding || uploading || submitted) && (
+          <h1 className="progress-screen__message">{message}</h1>
+        )}
       </div>
+      <input id="audio" type="checkbox" onChange={toggleAudio} />
+      <label
+        htmlFor="audio"
+        title="Toggle audio"
+        className="icon-button audio-toggle">
+        {config && config.muted ? <AudioOff /> : <AudioOn />}
+      </label>
+      <Toasts />
     </div>
   )
 }
-
-/**
- * Volume Rocker code
- * <input id="volume" type="checkbox"/>
-<label for="volume" title="Toggle sound">
-  <svg viewBox="0 0 24 24">
-    <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"></path>
-  </svg>
-  <svg viewBox="0 0 24 24">
-    <path d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z"></path>
-  </svg>
-</label>
- */
 
 export default App

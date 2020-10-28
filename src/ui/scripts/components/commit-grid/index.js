@@ -7,7 +7,7 @@ const MAX_LEVEL = 4
 const NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 const PITCH = [5, 4, 3, 2]
 
-export default function CommitGrid({ cells, onChange }) {
+export default function CommitGrid({ cells, onChange, muted }) {
   const gridRef = useRef(null)
   const rendered = useRef(null)
   const erasing = useRef(null)
@@ -42,7 +42,7 @@ export default function CommitGrid({ cells, onChange }) {
         if (NEW_LEVEL !== LEVEL) {
           cell.setAttribute('data-level', NEW_LEVEL)
           cells[INDEX] = NEW_LEVEL
-          playNote(INDEX % 7, NEW_LEVEL)
+          if (!muted) playNote(INDEX % 7, NEW_LEVEL)
         }
       }
       if (onChange) onChange()
@@ -79,7 +79,6 @@ export default function CommitGrid({ cells, onChange }) {
     synthRef.current.set({
       volume: -20
     })
-    // console.info(synthRef.current, synthRef.current.volume)
   }, [])
 
   return (

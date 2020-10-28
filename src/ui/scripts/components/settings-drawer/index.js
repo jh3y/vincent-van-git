@@ -7,17 +7,23 @@ import useSound from '../../hooks/useSound'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
-  const { play: clickPlay } = useSound('https://assets.codepen.io/605876/click.mp3')
+  const { play: clickPlay } = useSound(
+    'https://assets.codepen.io/605876/click.mp3'
+  )
   const drawerRef = useRef(null)
   const { handleSubmit, register, setValue } = useForm()
-  const onSubmit = (values) => {
-    clickPlay()
-    ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, values)
+  const onSubmit = (config) => {
+    if (!props.muted) clickPlay()
+    ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, {
+      config,
+      silent: false,
+    })
   }
+
   const [open, setOpen] = useState(false)
 
   const toggleMenu = () => {
-    clickPlay()
+    if (!props.muted) clickPlay()
     setOpen(!open)
   }
 
@@ -29,13 +35,14 @@ const SettingsDrawer = (props) => {
 
   useEffect(() => {
     ipcRenderer.on(MESSAGING_CONSTANTS.UPDATED, (event, args) => {
-      setOpen(false)
-      alert(args.message)
+      if (!args.silent) {
+        setOpen(false)
+      }
     })
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--open', open ? 1 : 0)
+    document.documentElement.style.setProperty('--settings', open ? 1 : 0)
     const handleClick = ({ target }) => {
       if (drawerRef.current !== target && !drawerRef.current.contains(target)) {
         setOpen(false)
@@ -52,41 +59,26 @@ const SettingsDrawer = (props) => {
   }, [open])
 
   return (
-    <div className="settings-drawer" ref={drawerRef}>
+    <div className="sliding-drawer sliding-drawer--settings" ref={drawerRef}>
       <button
         title={`${open ? 'Close' : 'Open'} settings`}
-        className="settings-drawer__toggle icon-button"
+        className="sliding-drawer__toggle sliding-drawer__toggle--settings icon-button"
         onClick={toggleMenu}>
         <Cog />
       </button>
-      <form className="settings-drawer__form" onSubmit={handleSubmit(onSubmit)}>
-        <h2>Settings</h2>
-        <div className="settings-drawer__form-field">
+      <form className="sliding-drawer__form" onSubmit={handleSubmit(onSubmit)}>
+        <h2 className="sliding-drawer__title">Settings</h2>
+        <div className="sliding-drawer__form-field">
           <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            name="username"
-            required
-            ref={register()}
-          />
+          <input id="username" name="username" required ref={register()} />
         </div>
-        <div className="settings-drawer__form-field">
+        <div className="sliding-drawer__form-field">
           <label htmlFor="repository">Repository</label>
-          <input
-            id="repository"
-            name="repository"
-            required
-            ref={register()}
-          />
+          <input id="repository" name="repository" required ref={register()} />
         </div>
-        <div className="settings-drawer__form-field">
+        <div className="sliding-drawer__form-field">
           <label htmlFor="branch">Branch</label>
-          <input
-            id="branch"
-            required
-            name="branch"
-            ref={register()}
-          />
+          <input id="branch" required name="branch" ref={register()} />
         </div>
 
         <button type="submit">Save</button>
