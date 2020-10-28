@@ -1,32 +1,13 @@
-.settings-drawer {
-  position: fixed;
-  top: 0;
+.sliding-drawer--settings {
   right: 100%;
-  width: 220px;
-  height: 100%;
-  background: var(--grey);
-  box-shadow: -4px 0 20px -10px hsl(0, 0%, 10%) inset;
 }
 
-// Related to sliding the body when the drawer opens.
-body {
-  transform: translate(calc((var(--open) * 220) * 1px), 0);
-  transition: transform 0.25s;
-}
-
-.settings-drawer__toggle {
-  position: absolute;
+.sliding-drawer__toggle--settings {
   left: 100%;
-  top: 0;
 }
 
-.settings-drawer__form {
-  padding: var(--padding);
+.sliding-drawer__form {
   margin: 0;
-  h2 {
-    color: var(--color);
-    margin: 0 0 calc(1.5 * var(--padding)) 0;
-  }
 
   input {
     width: 100%;

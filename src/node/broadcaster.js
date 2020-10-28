@@ -6,7 +6,7 @@ const { execSync } = require('child_process')
 const { scrapeCommits } = require('./scrape-commits')
 const { app, BrowserWindow } = require('electron')
 const { download } = require('electron-dl')
-const { MESSAGING_CONSTANTS } = require('../constants')
+const { MESSAGING_CONSTANTS, MESSAGES } = require('../constants')
 
 const isDev =
   process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
@@ -27,22 +27,51 @@ const isEmptyRepo = async (username, repository) => {
   return PAGE.indexOf('blankslate') !== -1
 }
 
+const processCommits = async (onCommit, commits, username, event, message) => {
+  const START_DAY = TODAY.minus({ days: commits.length - 1 })
+  const COMMIT_MULTIPLIER = await scrapeCommits(username)
+  let total = 0
+  let genArr = []
+  for (let c = 0; c < commits.length; c++) {
+    const LEVEL = commits[c]
+    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
+    total += NUMBER_COMMITS
+    genArr.push(NUMBER_COMMITS)
+  }
+  event.reply(MESSAGING_CONSTANTS.INFO, {
+    numberOfCommits: total,
+    message,
+  })
+  // Loop through the commits matching up the dates and creating empty commits
+  for (let d = 0; d < genArr.length; d++) {
+    // Git commit structure
+    // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
+    const COMMITS = genArr[d]
+    if (COMMITS > 0) {
+      const COMMIT_DAY = START_DAY.plus({ days: d })
+      for (let c = 0; c < COMMITS; c++) {
+        onCommit(COMMIT_DAY.toISO({includeOffset: true}))
+      }
+    }
+  }
+}
+
 const validateConfig = async (username, repository, branch) => {
   const userRequest = await fetch(`https://github.com/${username}`)
   if (userRequest.status !== 200)
-    throw Error('Vincent van Git: Github username does not exist!')
+    throw Error(MESSAGES.USERNAME)
   // Check for the repository
   const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
   if (repoRequest.status !== 200)
-    throw Error('Vincent van Git: Github repository does not exist!')
+    throw Error(MESSAGES.REPO)
   // Check for the repository branch
   const branchRequest = await fetch(
     `https://github.com/jh3y/${repository}/tree/${branch}`
   )
   if (branchRequest.status !== 200)
-    throw Error('Vincent van Git: Github branch does not exist!')
+    throw Error(MESSAGES.BRANCH)
   const IS_EMPTY = await isEmptyRepo(username, repository)
-  if (!IS_EMPTY) throw Error('VVG: Repository not empty!')
+  if (!IS_EMPTY) throw Error(MESSAGES.EMPTY)
   return false
 }
 /**
@@ -56,37 +85,13 @@ const generateShellScript = async (
   repoPath,
   event
 ) => {
-  const START_DAY = TODAY.minus({ days: commits.length - 1 })
-  const COMMIT_MULTIPLIER = await scrapeCommits(username)
   let SCRIPT = `mkdir ${repoPath}
 cd ${repoPath}
 git init
 `
-  let total = 0
-  let genArr = []
-  for (let c = 0; c < commits.length; c++) {
-    const LEVEL = commits[c]
-    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
-    total += NUMBER_COMMITS
-    genArr.push(NUMBER_COMMITS)
-  }
-  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    numberOfCommits: total,
-  })
-  // Loop through the commits matching up the dates and creating empty commits
-  for (let d = 0; d < genArr.length; d++) {
-    // Git commit structure
-    // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-    const COMMITS = genArr[d]
-    if (COMMITS > 0) {
-      const COMMIT_DAY = START_DAY.plus({ days: d })
-      for (let c = 0; c < COMMITS; c++) {
-        SCRIPT += `git commit --allow-empty --date "${COMMIT_DAY.toISO({includeOffset: true})}" -m "Vincent paints again"\n`
-        // Debug the progress of a days commits.
-        // console.info(`committing for date ${(c / NUMBER_COMMITS) * 100}%`)
-      }
-    }
-  }
+  await processCommits(date => {
+    SCRIPT += `git commit --allow-empty --date "${date})}" -m "Vincent paints again"\n`
+  }, commits, username, event, MESSAGES.GENERATING)
   SCRIPT += `git remote add origin https://github.com/${username}/${repository}.git\n`
   SCRIPT += `git push -u origin ${branch}\n`
   SCRIPT += `cd ../\n`
@@ -125,9 +130,6 @@ const paintCommitsNode = async (
   branch,
   event
 ) => {
-  const COMMIT_MULTIPLIER = await scrapeCommits(username)
-  // Grab the start day
-  const START_DAY = TODAY.minus({ days: commits.length - 1 })
   // Remove the repo directory if it exists
   try {
     // Create temp repo close by, app.getPath, temp location???
@@ -141,38 +143,11 @@ const paintCommitsNode = async (
   // Initialise the git repo
   cd(REPO_LOCATION)
   execSync('git init')
-
-  // Generate a total and send the information to the UI
-  let total = 0
-  let genArr = []
-  for (let c = 0; c < commits.length; c++) {
-    const LEVEL = commits[c]
-    const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
-    total += NUMBER_COMMITS
-    genArr.push(NUMBER_COMMITS)
-  }
-  event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-    numberOfCommits: total,
-  })
-  // Loop through the commits matching up the dates and creating empty commits
-  for (let d = 0; d < genArr.length; d++) {
-    // Git commit structure
-    // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-    const COMMITS = genArr[d]
-    if (COMMITS > 0) {
-      const COMMIT_DAY = START_DAY.plus({ days: d })
-      for (let c = 0; c < COMMITS; c++) {
-        execSync(
-          `git commit --allow-empty --date "${COMMIT_DAY.toHTTP()}" -m "Vincent paints again"`
-        )
-        // Debug the progress of a days commits.
-        // console.info(`committing for date ${(c / NUMBER_COMMITS) * 100}%`)
-      }
-    }
-  }
+  await processCommits((date) => execSync(
+    `git commit --allow-empty --date "${date})}" -m "Vincent paints again"`
+  ), commits, username, event, MESSAGES.PUSHING)
   // TODO: Communicate progress in the console and to the user on the front end.
   // It takes time, make an animation of pixel art at the laptop?
-  console.info('All commits processed')
   // Push it up online
   execSync(
     `git remote add origin https://github.com/${username}/${repository}.git`
@@ -189,22 +164,8 @@ const broadcast = async ({ username, repository, branch, commits }, event) => {
   try {
     // Check for git
     if (!which('git'))
-      throw Error('Vincent van Git: git CLI not installed on machine!')
-    // Check for user
-    const userRequest = await fetch(`https://github.com/${username}`)
-    if (userRequest.status !== 200)
-      throw Error('Vincent van Git: Github username does not exist!')
-    // Check for the repository
-    const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
-    if (repoRequest.status !== 200)
-      throw Error('Vincent van Git: Github repository does not exist!')
-    // Check for the repository branch
-    const branchRequest = await fetch(
-      `https://github.com/jh3y/${repository}/tree/${branch}`
-    )
-    if (branchRequest.status !== 200)
-      throw Error('Vincent van Git: Github branch does not exist!')
-
+      throw Error(MESSAGES.GIT)
+    await validateConfig(username, repository, branch)
     await paintCommitsNode(commits, username, repository, branch, event)
   } catch (err) {
     throw Error(err)

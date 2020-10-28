@@ -67,6 +67,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 2;
   background-color: hsl(0, 0%, 100%);
 }
 
@@ -81,6 +82,11 @@ body {
 .progress-screen {
   -webkit-clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
   clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
+
+  &__message {
+    color: var(--color);
+    font-size: 1.5rem;
+  }
 }
 
 button {
@@ -104,6 +110,10 @@ button {
   width: 44px;
   border-radius: 50%;
   transition: background 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background: var(--grey);
@@ -118,6 +128,11 @@ button {
     transition: fill 0.2s;
   }
 
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+
   &[disabled] {
     cursor: not-allowed;
     background: transparent;
@@ -125,6 +140,18 @@ button {
       fill: var(--grey);
     }
   }
+}
+
+.audio-toggle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#audio {
+  height: 0;
+  width: 0;
+  transform: scale(0);
 }
 
 .configuration-container {
@@ -190,42 +217,37 @@ input::placeholder {
   }
 }
 
-.spinner {
-  margin-top: 1rem;
-  height: 25vmin;
-  width: 25vmin;
-  border: 10px dashed red;
-  border-radius: 50%;
+// Related to sliding the body when the drawer opens.
+body {
+  transform: translate(calc((var(--settings) * 220) * 1px), 0) translate(calc((var(--info) * 220) * -1px), 0);
+  transition: transform 0.25s;
 }
 
-// label
-//   height 44px
-//   width 44px
-//   position fixed
-//   bottom 1rem
-//   right 1rem
-//   cursor pointer
+.sliding-drawer__toggle {
+  position: absolute;
+  top: 0;
+}
 
-//   & > svg
-//     position absolute
-//     height 100%
-//     width 100%
-//     top 0
-//     left 0
+.sliding-drawer__title {
+  color: var(--color);
+  margin: 0 0 calc(1.5 * var(--padding)) 0;
+}
 
-//   path
-//     fill hsl(216, 14%, 30%)
+.sliding-drawer {
+  position: fixed;
+  top: 0;
+  width: 220px;
+  height: 100%;
+  background: var(--grey);
+  box-shadow: 4px 0 20px -10px hsl(0, 0%, 10%) inset;
+  padding: var(--padding);
 
-//   svg:nth-of-type(1)
-//     display none
+  h3 {
+    color: var(--color);
+    margin: 0 0 calc(var(--padding) * 0.75) 0;
+  }
 
-// [type='checkbox']
-//   // opacity 0
-//   height 0
-//   width 0
-
-// :checked ~ label
-//   svg:nth-of-type(1)
-//     display block
-//   svg:nth-of-type(2)
-//     display none
+  p {
+    margin: 0 0 calc(var(--padding) * 0.5) 0;
+  }
+}

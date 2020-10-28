@@ -1,5 +1,5 @@
 const { app } = require('electron')
-const { MESSAGING_CONSTANTS } = require('../constants')
+const { MESSAGES } = require('../constants')
 const fs = require('fs')
 const CONFIG_PATH = `${
   process.env.NODE_ENV !== undefined && process.env.NODE_ENV === 'development'
@@ -22,9 +22,10 @@ const readConfig = async () => {
     const DATA = await fs.promises.readFile(CONFIG_PATH, 'utf-8')
     return JSON.parse(DATA)
   } catch (err) {
-    console.info('VVG: No config so creating one')
     await fs.promises.writeFile(CONFIG_PATH, JSON.stringify({}))
-    return {}
+    return {
+      muted: false,
+    }
   }
 }
 
@@ -38,7 +39,13 @@ const saveConfig = async (name, commits, event) => {
       newImages.filter(
         (image) => JSON.stringify(image.commits) === JSON.stringify(commits)
       ).length > 0
-    if (EXISTS_BY_VALUE) {
+    if (EXISTS_BY_VALUE && EXISTS_BY_NAME) {
+      return {
+        message: MESSAGES.NO_CHANGE,
+        config: CONFIG,
+        saved: JSON.stringify({ name, commits }),
+      }
+    } else if (EXISTS_BY_VALUE) {
       newImages = newImages.map((image) => ({
         name:
           JSON.stringify(image.commits) === JSON.stringify(commits)
@@ -60,13 +67,12 @@ const saveConfig = async (name, commits, event) => {
       images: newImages,
     }
     await writeConfig(NEW_CONFIG)
-    event.reply(MESSAGING_CONSTANTS.MESSAGE, {
-      message: `VVG: Snapshot ${
-        EXISTS_BY_NAME || EXISTS_BY_VALUE ? 'updated' : 'saved'
-      }!`,
+    return {
+      message:
+        EXISTS_BY_NAME || EXISTS_BY_VALUE ? MESSAGES.UPDATED : MESSAGES.SAVED,
       config: NEW_CONFIG,
       saved: JSON.stringify({ name, commits }),
-    })
+    }
   } catch (err) {
     if (!name || !commits) throw Error('VVG: No name or commits passed')
     else throw Error(err)
