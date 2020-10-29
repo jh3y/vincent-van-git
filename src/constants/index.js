@@ -22,6 +22,12 @@ const MESSAGES = {
   UPDATED: 'Configuration updated',
   DELETED: 'Configuration deleted',
   WIPED: 'Grid wiped',
+  CONFIRM_WIPE: 'Wipe grid?',
+  CONFIRM_PUSH: `Push to Github?
+
+NOTE: For complex drawings, Vincent van Git can generate 1000s of commits.
+This takes some time. Be patient.`,
+  CONFIRM_DELETE: name => `Delete configuration${name ? ` ${name} ` : ''}?`,
   DOWNLOADED: 'Shell script downloaded',
   GENERATING: 'Generating shell script',
   PUSHING: 'Generating and pushing commits',

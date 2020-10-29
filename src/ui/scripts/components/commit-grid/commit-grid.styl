@@ -9,6 +9,10 @@
   grid-gap: calc(var(--cell-gap) * 1px);
   grid-auto-flow: dense;
 
+  &:active {
+    cursor: var(--cursor, pointer);
+  }
+
   &__cell {
     height: calc(var(--cell-size) * 1px);
     width: calc(var(--cell-size) * 1px);
