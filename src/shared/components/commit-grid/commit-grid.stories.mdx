@@ -1,0 +1,19 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import CommitGrid from './'
+
+<Meta title="Components/CommitGrid" />
+
+# Commit Grid
+
+Where you draw your art for your Github contribution graph.
+
+<Canvas>
+  <Story name="Commits">
+    <CommitGrid
+      cells={new Array(350).fill().map(() => Math.floor(Math.random() * 4))}
+    />
+  </Story>
+  <Story name="No commits">
+    <CommitGrid />
+  </Story>
+</Canvas>

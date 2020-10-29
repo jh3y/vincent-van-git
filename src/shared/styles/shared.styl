@@ -1,0 +1,241 @@
+* {
+  box-sizing: border-box;
+  touch-action: none;
+  font-family: monospace;
+}
+
+:root {
+  --green-one: hsl(130, 64%, 76%);
+  --green-two: hsl(136, 53%, 51%);
+  --green-three: hsl(136, 54%, 41%);
+  --green-four: hsl(139, 54%, 28%);
+  --cell-radius: 2;
+  --grey: hsl(216, 14%, 93%);
+  --color: hsl(0, 0%, 40%);
+  --shirt: var(--green-one);
+  --shirt-shade: var(--green-two);
+  --skin: hsl(0, 30%, 95%);
+  --skin-shade: hsl(0, 20%, 80%);
+  --stroke: hsl(0, 0%, 20%);
+  --laptop: hsl(0, 0%, 78%);
+  --laptop-main: #4d4d4c;
+  --laptop-shade: rgba(58,58,59,0.5);
+  --laptop-badge: #fff;
+  --beard: #bf8040;
+  --beard: #ae6113;
+  --beard-light: #d9b38c;
+  --beard-light: #ea943e;
+  --eyes: var(--stroke);
+  --strap: #bf4040;
+  --strap: var(--green-four);
+  --cheeks: #df9f9f;
+  --cap: #404040;
+  --sparks: rgba(255,255,153,0.85);
+  --bulb: rgba(255,255,153,0.85);
+  --filament: #000;
+  --screw: #ccc;
+  --bg: #6e7c91;
+  --owl-1: #feec90;
+  --owl-2: #c6e472;
+  --owl-3: #f88a68;
+  --owl-4: #80cbc5;
+  --owl-5: #c793ec;
+  --padding: 16px;
+}
+
+body {
+  font-family: monospace;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(0, 0%, 15%);
+  background-color: hsl(0, 0%, 100%);
+  min-height: 360px;
+  overflow: hidden;
+}
+
+ul {
+  padding: 0 0 0 var(--padding);
+  margin: 0;
+}
+
+ul > li + li {
+  margin-top: calc(var(--padding) / 2);
+}
+
+.app,
+.root {
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.progress-screen {
+  --right: 100;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background-color: hsl(0, 0%, 100%);
+}
+
+.app,
+.progress-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.progress-screen {
+  -webkit-clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
+  clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
+
+  &__message {
+    color: var(--color);
+    font-size: 1.5rem;
+  }
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: 0;
+}
+
+.app .actions-container {
+  margin-top: var(--padding);
+  display: flex;
+}
+
+.actions-container > * + *,
+.configuration-container > * + * {
+  margin-left: var(--padding);
+}
+
+.icon-button {
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: var(--grey);
+  }
+
+  &:active path {
+    fill: var(--green-two);
+  }
+
+  path {
+    fill: var(--green-four);
+    transition: fill 0.2s;
+  }
+
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+
+  &[disabled] {
+    cursor: not-allowed;
+    background: transparent;
+    path {
+      fill: var(--grey);
+    }
+  }
+}
+
+.audio-toggle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#audio {
+  height: 0;
+  width: 0;
+  transform: scale(0);
+}
+
+.configuration-container {
+  -webkit-clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
+  clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
+  transition: clip-path 0.25s;
+  display: flex;
+  border-left: 2px solid var(--grey);
+  padding-left: var(--padding);
+}
+
+select,
+input {
+  height: 44px;
+  margin: 0;
+  padding: 0 var(--padding);
+}
+
+select,
+input,
+button {
+  outline: transparent;
+}
+
+select,
+input {
+  border: 2px solid var(--grey);
+  border-radius: 6px;
+  color: var(--color);
+}
+
+input::placeholder {
+  color: hsl(0, 0%, 80%);
+}
+
+// Select styling
+.select-wrapper {
+  border: 2px solid var(--grey);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+
+  &:after {
+    content: "";
+    height: 8px;
+    width: 12px;
+    background: var(--color);
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translate(0, -30%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 50% 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  select {
+    color: var(--color);
+    -webkit-appearance: none;
+    appearance: none;
+    border: 0;
+    padding: 0 30px 0 var(--padding);
+    height: 40px;
+  }
+}
+
+footer {
+  padding: var(--padding);
+}
+
+a {
+  color: var(--green-two);
+}
+
+a:active {
+  color: var(--green-four);
+}

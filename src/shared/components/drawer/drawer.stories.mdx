@@ -1,0 +1,98 @@
+import { Fragment } from 'react'
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import Information from '../../assets/icons/information-outline.svg'
+import Cog from '../../assets/icons/cog.svg'
+import Drawer from './'
+
+<Meta title="Components/Drawer" />
+
+# Drawer
+
+Used for sliding away parts of the UI.
+
+<Canvas>
+  <Story name="Info">
+    <Drawer title="Instructions" icon={Information}>
+      <Fragment>
+        <section>
+          <ul>
+            <li>
+              Set the Github username, repository, and branch in settings.
+            </li>
+            <li>Left pointer to draw, right pointer to erase.</li>
+            <li>Ensure the repository is an empty repository.</li>
+            <li>
+              Don't run if you already have a drawing on your graph. This will
+              trigger a huge amount of commits.
+            </li>
+          </ul>
+        </section>
+        <footer>
+          <a
+            href="https://twitter.com/jh3yy"
+            target="_blank"
+            rel="noopener noreferrer">
+            jh3y
+          </a>{' '}
+          &copy; 2020 MIT
+        </footer>
+      </Fragment>
+    </Drawer>
+  </Story>
+  <Story name="Settings">
+    <Drawer title="Settings" left={false} icon={Cog}>
+      <Fragment>
+        <section>
+          <ul>
+            <li>
+              Set the Github username, repository, and branch in settings.
+            </li>
+            <li>Left pointer to draw, right pointer to erase.</li>
+            <li>Ensure the repository is an empty repository.</li>
+            <li>
+              Don't run if you already have a drawing on your graph. This will
+              trigger a huge amount of commits.
+            </li>
+          </ul>
+        </section>
+        <footer>
+          <a
+            href="https://twitter.com/jh3yy"
+            target="_blank"
+            rel="noopener noreferrer">
+            jh3y
+          </a>{' '}
+          &copy; 2020 MIT
+        </footer>
+      </Fragment>
+    </Drawer>
+  </Story>
+  <Story name="Open">
+    <Drawer title="Settings" left={false} icon={Cog} open={true}>
+      <Fragment>
+        <section>
+          <ul>
+            <li>
+              Set the Github username, repository, and branch in settings.
+            </li>
+            <li>Left pointer to draw, right pointer to erase.</li>
+            <li>Ensure the repository is an empty repository.</li>
+            <li>
+              Don't run if you already have a drawing on your graph. This will
+              trigger a huge amount of commits.
+            </li>
+          </ul>
+        </section>
+        <footer>
+          <a
+            href="https://twitter.com/jh3yy"
+            target="_blank"
+            rel="noopener noreferrer">
+            jh3y
+          </a>{' '}
+          &copy; 2020 MIT
+        </footer>
+      </Fragment>
+    </Drawer>
+  </Story>
+</Canvas>

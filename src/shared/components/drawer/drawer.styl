@@ -1,0 +1,55 @@
+// Related to sliding the body when the drawer opens.
+body {
+  transform: translate(calc((var(--left, 0) * 220) * 1px), 0) translate(calc((var(--right, 0) * 220) * -1px), 0);
+  transition: transform 0.25s;
+}
+
+.sliding-drawer__toggle {
+  position: absolute;
+  top: 0;
+}
+
+.sliding-drawer__title {
+  color: var(--color);
+  margin: 0 0 calc(1 * var(--padding)) 0;
+}
+
+.sliding-drawer {
+  position: fixed;
+  top: 0;
+  width: 220px;
+  height: 100vh;
+  background: var(--grey);
+  box-shadow: 4px 0 20px -10px hsl(0, 0%, 10%) inset;
+
+  &__content {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    padding: var(--padding);
+  }
+
+  h3 {
+    color: var(--color);
+    margin: 0 0 calc(var(--padding) * 0.75) 0;
+  }
+
+  p {
+    margin: 0 0 calc(var(--padding) * 0.5) 0;
+  }
+}
+
+.sliding-drawer--right {
+  left: 100%;
+}
+
+.sliding-drawer__toggle--right {
+  right: 100%;
+}
+.sliding-drawer--left {
+  right: 100%;
+}
+
+.sliding-drawer__toggle--left {
+  left: 100%;
+}
