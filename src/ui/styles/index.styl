@@ -9,6 +9,7 @@
   --green-two: hsl(136, 53%, 51%);
   --green-three: hsl(136, 54%, 41%);
   --green-four: hsl(139, 54%, 28%);
+  --cell-radius: 2;
   --grey: hsl(216, 14%, 93%);
   --color: hsl(0, 0%, 40%);
   --shirt: var(--green-one);
@@ -52,6 +53,15 @@ body {
   color: hsl(0, 0%, 15%);
   background-color: hsl(0, 0%, 100%);
   min-height: 360px;
+}
+
+ul {
+  padding: 0 0 0 var(--padding);
+  margin: 0;
+}
+
+ul > li + li {
+  margin-top: calc(var(--padding) / 2);
 }
 
 .app,
@@ -223,6 +233,18 @@ body {
   transition: transform 0.25s;
 }
 
+footer {
+  padding: var(--padding);
+}
+
+a {
+  color: var(--green-two);
+}
+
+a:active {
+  color: var(--green-four);
+}
+
 .sliding-drawer__toggle {
   position: absolute;
   top: 0;
@@ -230,17 +252,23 @@ body {
 
 .sliding-drawer__title {
   color: var(--color);
-  margin: 0 0 calc(1.5 * var(--padding)) 0;
+  margin: 0 0 calc(1 * var(--padding)) 0;
 }
 
 .sliding-drawer {
   position: fixed;
   top: 0;
   width: 220px;
-  height: 100%;
+  height: 100vh;
   background: var(--grey);
   box-shadow: 4px 0 20px -10px hsl(0, 0%, 10%) inset;
-  padding: var(--padding);
+
+  &__content {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    padding: var(--padding);
+  }
 
   h3 {
     color: var(--color);

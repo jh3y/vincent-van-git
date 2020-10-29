@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import * as Tone from 'tone'
+import BRUSH_PATH from '../../../../assets/images/brush.png'
 import './commit-grid.styl'
 
 const MAX_LEVEL = 4
@@ -33,11 +34,13 @@ export default function CommitGrid({ cells, onChange, muted }) {
     ) {
       rendered.current = cell
       const INDEX = parseInt(cell.getAttribute('data-index'), 10)
+      const LEVEL = parseInt(cell.getAttribute('data-level'), 10) || 0
       if (erasing.current) {
         cell.setAttribute('data-level', 0)
         cells[INDEX] = 0
+        if (!muted && LEVEL !== 0)
+          synthRef.current.triggerAttackRelease('A2', '32n')
       } else {
-        const LEVEL = parseInt(cell.getAttribute('data-level'), 10) || 0
         const NEW_LEVEL = Math.min(MAX_LEVEL, LEVEL + 1)
         if (NEW_LEVEL !== LEVEL) {
           cell.setAttribute('data-level', NEW_LEVEL)
@@ -75,10 +78,60 @@ export default function CommitGrid({ cells, onChange, muted }) {
   }
 
   useEffect(() => {
-    synthRef.current = new Tone.Synth().toDestination()
-    synthRef.current.set({
-      volume: -20
-    })
+    synthRef.current = new Tone.MonoSynth({
+      volume: -8,
+      detune: 0,
+      portamento: 0,
+      envelope: {
+        attack: 0.05,
+        attackCurve: 'linear',
+        decay: 0.3,
+        decayCurve: 'exponential',
+        release: 0.8,
+        releaseCurve: 'exponential',
+        sustain: 0.4,
+      },
+      filter: {
+        Q: 1,
+        detune: 0,
+        frequency: 0,
+        gain: 0,
+        rolloff: -12,
+        type: 'lowpass',
+      },
+      filterEnvelope: {
+        attack: 0.001,
+        attackCurve: 'linear',
+        decay: 0.7,
+        decayCurve: 'exponential',
+        release: 0.8,
+        releaseCurve: 'exponential',
+        sustain: 0.1,
+        baseFrequency: 300,
+        exponent: 2,
+        octaves: 4,
+      },
+      oscillator: {
+        detune: 0,
+        frequency: 440,
+        partialCount: 8,
+        partials: [
+          1.2732395447351628,
+          0,
+          0.4244131815783876,
+          0,
+          0.25464790894703254,
+          0,
+          0.18189136353359467,
+          0,
+        ],
+        phase: 0,
+        type: 'square8',
+      },
+    }).toDestination()
+    // synthRef.current.set({
+    //   volume: -20
+    // })
   }, [])
 
   return (
@@ -93,6 +146,9 @@ export default function CommitGrid({ cells, onChange, muted }) {
       onDragOver={moot}
       onDragStart={moot}
       ref={gridRef}
+      style={{
+        '--cursor': `url("${BRUSH_PATH}") 14 34, auto`,
+      }}
       className="commit-grid">
       {cells.map((cell, index) => {
         const COLUMN = Math.floor(index / 7) + 1

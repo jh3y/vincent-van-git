@@ -15,6 +15,9 @@ import AudioOn from './icons/volume-on.svg'
 import AudioOff from './icons/volume-off.svg'
 import useSound from '../hooks/useSound'
 import CLICK_PATH from '../../../assets/audio/click.mp3'
+import SPARKLE_PATH from '../../../assets/audio/sparkle.mp3'
+import TRUMPET_PATH from '../../../assets/audio/trumpet-fanfare.mp3'
+import BRUSH_PATH from '../../../assets/audio/brush-stroke.mp3'
 import { MESSAGING_CONSTANTS, MESSAGES } from '../../../constants'
 
 const SELECT_PLACEHOLDER = 'Select Configuration'
@@ -37,6 +40,9 @@ const App = () => {
   const [coding, setCoding] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const { play: clickPlay } = useSound(CLICK_PATH)
+  const { play: sparklePlay } = useSound(SPARKLE_PATH)
+  const { play: brushPlay } = useSound(BRUSH_PATH)
+  const { play: trumpetPlay } = useSound(TRUMPET_PATH)
   // Cleared is used to set the key on the CommitGrid which forces it
   // to re-render the cell reference.
   const [cleared, setCleared] = useState(new Date().toUTCString())
@@ -44,7 +50,6 @@ const App = () => {
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
 
   const selectImage = (e) => {
-    if (!config.muted) clickPlay()
     setImage(e.target.value) // Could be set to the Object???
     if (e.target.value === SELECT_PLACEHOLDER) return
     const { name, commits } = JSON.parse(e.target.value)
@@ -54,6 +59,7 @@ const App = () => {
     )
     setCleared(new Date().toUTCString())
     setDirty(true)
+    if (!config.muted) sparklePlay()
     ipcRenderer.send(MESSAGING_CONSTANTS.INFO, {
       message: MESSAGES.LOADED,
     })
@@ -79,16 +85,16 @@ const App = () => {
 
   const clearGrid = () => {
     if (!config.muted) clickPlay()
-    if (confirm('Clear grid?')) {
+    if (confirm(MESSAGES.CONFIRM_WIPE)) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
       setImage('') // Setting to empty string to select default.
       setImageName('')
       setCleared(new Date().toUTCString())
       setDirty(false)
+      if (!config.muted) brushPlay()
       ipcRenderer.send(MESSAGING_CONSTANTS.INFO, {
         message: MESSAGES.WIPED,
       })
-
     }
   }
 
@@ -105,11 +111,12 @@ const App = () => {
 
   const deleteImage = () => {
     if (!config.muted) clickPlay()
-    if (confirm(`Delete ${JSON.parse(image).name}?`)) {
+    const name = JSON.parse(image).name
+    if (confirm(MESSAGES.CONFIRM_DELETE(name))) {
       setImage('')
       setImageName('')
       ipcRenderer.send(MESSAGING_CONSTANTS.DELETE, {
-        name: JSON.parse(image).name,
+        name,
       })
     }
   }
@@ -129,11 +136,7 @@ const App = () => {
 
   const sendGrid = () => {
     if (!config.muted) clickPlay()
-    const MSG = `
-    Push to Github?
-    `
-    if (confirm(MSG)) {
-      // setCoding(true)
+    if (confirm(MESSAGES.CONFIRM_PUSH)) {
       setSubmitted(true)
       ipcRenderer.send(MESSAGING_CONSTANTS.PUSH, {
         commits: sanitizeDays(cellsRef.current, NUMBER_OF_DAYS),
@@ -199,23 +202,27 @@ const App = () => {
 
   useEffect(() => {
     let timer
-    if ((!uploading && coding) || (error)) {
-      timer = setTimeout(() => {
-        gsap.to(progressRef.current, {
-          '--left': 100,
-          duration: TIMING.SLIDE,
-          onComplete: () => {
-            setCoding(false)
-            setUploading(false)
-            setSubmitted(false)
-            setError(false)
-            gsap.set(progressRef.current, {
-              '--left': 0,
-              '--right': 100,
-            })
-          },
-        })
-      }, error ? TIMING.BUFFER * 500 : TIMING.BUFFER * 1000)
+    if ((!uploading && coding) || error) {
+      if (!config.muted && !error) trumpetPlay()
+      timer = setTimeout(
+        () => {
+          gsap.to(progressRef.current, {
+            '--left': 100,
+            duration: TIMING.SLIDE,
+            onComplete: () => {
+              setCoding(false)
+              setUploading(false)
+              setSubmitted(false)
+              setError(false)
+              gsap.set(progressRef.current, {
+                '--left': 0,
+                '--right': 100,
+              })
+            },
+          })
+        },
+        error ? TIMING.BUFFER * 500 : TIMING.BUFFER * 1000
+      )
     } else if (uploading && !coding) {
       setCoding(true)
     }

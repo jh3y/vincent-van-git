@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { shell } from 'electron'
 import Information from '../icons/information-outline.svg'
 import useSound from '../../hooks/useSound'
 import './info-drawer.styl'
 
 const SettingsDrawer = (props) => {
-  const { play: clickPlay } = useSound('https://assets.codepen.io/605876/click.mp3')
+  const { play: clickPlay } = useSound(
+    'https://assets.codepen.io/605876/click.mp3'
+  )
   const drawerRef = useRef(null)
   const [open, setOpen] = useState(false)
 
@@ -38,12 +41,34 @@ const SettingsDrawer = (props) => {
         onClick={toggleMenu}>
         <Information />
       </button>
-      <article>
-        <h2 className="sliding-drawer__title">Info</h2>
+      <article className="sliding-drawer__content">
+        <h2 className="sliding-drawer__title">Instructions</h2>
         <section>
-          <h3>Instructions</h3>
-          <p>Left pointer to draw, right pointer to erase.</p>
+          <ul>
+            <li>
+              Set the Github username, repository, and branch in settings.
+            </li>
+            <li>Left pointer to draw, right pointer to erase.</li>
+            <li>Ensure the repository is an empty repository.</li>
+            <li>
+              Don't run if you already have a drawing on your graph. This will
+              trigger a huge amount of commits.
+            </li>
+          </ul>
         </section>
+        <footer>
+          <a
+            href="https://twitter.com/jh3yy"
+            onClick={(e) => {
+              e.preventDefault()
+              shell.openExternal('https://twitter.com/jh3yy')
+            }}
+            target="_blank"
+            rel="noopener noreferrer">
+            jh3y
+          </a>{' '}
+          &copy; 2020 MIT
+        </footer>
       </article>
     </div>
   )

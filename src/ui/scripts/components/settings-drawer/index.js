@@ -66,23 +66,32 @@ const SettingsDrawer = (props) => {
         onClick={toggleMenu}>
         <Cog />
       </button>
-      <form className="sliding-drawer__form" onSubmit={handleSubmit(onSubmit)}>
-        <h2 className="sliding-drawer__title">Settings</h2>
-        <div className="sliding-drawer__form-field">
-          <label htmlFor="username">Username</label>
-          <input id="username" name="username" required ref={register()} />
-        </div>
-        <div className="sliding-drawer__form-field">
-          <label htmlFor="repository">Repository</label>
-          <input id="repository" name="repository" required ref={register()} />
-        </div>
-        <div className="sliding-drawer__form-field">
-          <label htmlFor="branch">Branch</label>
-          <input id="branch" required name="branch" ref={register()} />
-        </div>
+      <div className="sliding-drawer__content">
+        <form
+          className="sliding-drawer__form"
+          onSubmit={handleSubmit(onSubmit)}>
+          <h2 className="sliding-drawer__title">Settings</h2>
+          <div className="sliding-drawer__form-field">
+            <label htmlFor="username">Username</label>
+            <input id="username" name="username" required ref={register()} />
+          </div>
+          <div className="sliding-drawer__form-field">
+            <label htmlFor="repository">Repository</label>
+            <input
+              id="repository"
+              name="repository"
+              required
+              ref={register()}
+            />
+          </div>
+          <div className="sliding-drawer__form-field">
+            <label htmlFor="branch">Branch</label>
+            <input id="branch" required name="branch" ref={register()} />
+          </div>
 
-        <button type="submit">Save</button>
-      </form>
+          <button type="submit">Save</button>
+        </form>
+      </div>
     </div>
   )
 }
