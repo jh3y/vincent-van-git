@@ -18,6 +18,7 @@
     "dev": "browser-sync start --server app --files app --no-open & parcel watch src/ui/markup/index.pug --target electron -d app --public-url ./ & cross-env NODE_ENV=development nodemon --ignore src/ui --ignore vincent-van-git.config.json --ignore app/ --exec \"electron .\"",
     "preprod": "cross-env NODE_ENV=production parcel build src/ui/markup/index.pug --target electron -d app --public-url ./",
     "prod": "electron .",
+    "build:web": "cd src/web && yarn build",
     "prepackage": "cross-env NODE_ENV=production parcel build src/ui/markup/index.pug --target electron -d app --public-url ./",
     "package": "electron-packager . --out=./release-build"
   },
@@ -33,7 +34,8 @@
     "react-hook-form": "^6.9.2",
     "regenerator-runtime": "^0.13.7",
     "shelljs": "^0.8.4",
-    "tone": "^14.7.58"
+    "tone": "^14.7.58",
+    "workbox-cli": "^5.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
