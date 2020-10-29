@@ -9,33 +9,6 @@ const {
   utils: { random },
 } = gsap
 
-// /**
-//  * Audio Attribution
-//  * Towel Defence Ingame[https://freemusicarchive.org/music/sawsquarenoise/Towel_Defence_OST/Towel_Defence_Ingame] by sawsquarenoise[https://freemusicarchive.org/music/sawsquarenoise]. Licensed under CC BY 4.0[https://creativecommons.org/licenses/by/4.0/]
-//  * Keyboard Typing[https://freesound.org/people/Trollarch2/sounds/331656/] by Trollarch2[https://freesound.org/people/Trollarch2/]. Licensed under CC 0[https://creativecommons.org/publicdomain/zero/1.0/]
-//  * success_02.wav[https://freesound.org/people/gamer127/sounds/463067/] by gamer127[https://freesound.org/people/gamer127/]. Licensed under CC 0[http://creativecommons.org/publicdomain/zero/1.0/]
-//  */
-
-const AUDIO = {
-  TADA: new Audio('https://assets.codepen.io/605876/chip--success.mp3'),
-  CLACKING: new Audio(
-    'https://assets.codepen.io/605876/keyboard-typing-mechanical.mp3'
-  ),
-  TUNE: new Audio(
-    'https://assets.codepen.io/605876/ChipTune-SawSquareNoise--TRIMMED.mp3'
-  ),
-}
-AUDIO.TADA.muted = AUDIO.CLACKING.muted = AUDIO.TUNE.muted = false
-AUDIO.TUNE.volume = 0.75
-AUDIO.CLACKING.playbackRate = 2
-AUDIO.TUNE.loop = AUDIO.CLACKING.loop = true
-
-// const toggleAudio = () => {
-//   AUDIO.TADA.muted = AUDIO.CLACKING.muted = AUDIO.TUNE.muted = !AUDIO.TUNE.muted
-// }
-
-// document.querySelector('#volume').addEventListener('input', toggleAudio)
-
 const TIMING = {
   DOWN: 0.2,
   UP: 0.5,
