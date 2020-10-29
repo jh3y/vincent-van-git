@@ -1,0 +1,37 @@
+.commit-grid {
+  --cell-radius: 2;
+  --cell-size: 11;
+  --cell-gap: 5;
+  --bg: var(--grey);
+  display: inline-grid;
+  grid-template-columns: repeat(53, auto);
+  grid-template-rows: repeat(7, auto);
+  grid-gap: calc(var(--cell-gap) * 1px);
+  grid-auto-flow: dense;
+
+  &:active {
+    cursor: var(--cursor, pointer);
+  }
+
+  &__cell {
+    height: calc(var(--cell-size) * 1px);
+    width: calc(var(--cell-size) * 1px);
+    background: var(--bg);
+    border-radius: calc(var(--cell-radius) * 1px);
+    grid-column: var(--column);
+
+    &[data-level="1"] {
+      --bg: var(--green-one);
+    }
+    &[data-level="2"] {
+      --bg: var(--green-two);
+    }
+    &[data-level="3"] {
+      --bg: var(--green-three);
+    }
+    &[data-level="4"] {
+      --bg: var(--green-four);
+    }
+  }
+
+}
