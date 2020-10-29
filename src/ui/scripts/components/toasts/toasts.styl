@@ -1,3 +1,5 @@
+
+
 .toasts {
   position: fixed;
   bottom: var(--padding);
@@ -7,4 +9,61 @@
   justify-content: flex-end;
   align-items: flex-end;
   z-index: 3;
+}
+
+.toasts > * + * {
+  margin-top: var(--padding);
+}
+
+.toast {
+  --blue: hsl(199, 94%, 87%);
+  --blue-border: hsl(199, 94%, 67%);
+  --blue-stroke: hsl(199, 94%, 37%);
+  --green: hsl(130, 65%, 87%);
+  --green-border: hsl(130, 65%, 57%);
+  --green-stroke: hsl(130, 65%, 37%);
+  --red: hsl(3, 70%, 89%);
+  --red-border: hsl(3, 70%, 59%);
+  --red-stroke: hsl(3, 70%, 39%);
+  --button-size: 44px;
+  border-radius: calc(var(--cell-radius) * 1px);
+  border-width: calc(var(--cell-radius) * 1px);
+  border-style: solid;
+  border-color: var(--border);
+  padding: var(--padding);
+  padding-right: var(--button-size);
+  position: relative;
+  background: var(--bg);
+  color: var(--stroke);
+
+  &--success {
+    --bg: var(--green);
+    --border: var(--green-border);
+    --stroke: var(--green-stroke);
+  }
+  &--info {
+    --bg: var(--blue);
+    --border: var(--blue-border);
+    --stroke: var(--blue-stroke);
+  }
+  &--error {
+    --bg: var(--red);
+    --border: var(--red-border);
+    --stroke: var(--red-stroke);
+  }
+
+  button {
+    height: var(--button-size);
+    width: var(--button-size);
+    position: absolute;
+    top: 50%;
+    right: 0;
+    padding: 0;
+    transform: translate(0, -50%);
+  }
+
+  svg {
+    stroke: var(--stroke);
+    fill: var(--stroke);
+  }
 }

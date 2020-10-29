@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ipcRenderer } from 'electron'
 import { DateTime } from 'luxon'
+import Close from '../icons/close.svg'
 import gsap from 'gsap'
 import { MESSAGING_CONSTANTS } from '../../../../constants'
 import './toasts.styl'
@@ -24,8 +25,9 @@ const Toast = ({ created, message, type, onDismiss, autoDismiss }) => {
   return (
     <div data-toast={created} className={`toast toast--${type}`}>
       {message}
-      {created}
-      <button onClick={onDismiss}>Remove</button>
+      <button title="Dismiss" onClick={onDismiss}>
+        <Close />
+      </button>
     </div>
   )
 }
@@ -35,7 +37,6 @@ const Toasts = () => {
   const [remove, setRemove] = useState(null)
   const [toasts, setToasts] = useState([])
   const onDismiss = (toastTime) => () => {
-    console.info('Remove toast created at', toastTime)
     gsap.to(`[data-toast="${toastTime}"]`, {
       xPercent: 100,
       opacity: 0,
@@ -63,16 +64,32 @@ const Toasts = () => {
       if (!arg.silent && arg.message) createToast(arg.message, TYPES.SUCCESS)
     })
     ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
-      if (!arg.silent && arg.message) createToast(arg.message.message, TYPES.ERROR)
+      if (!arg.silent && arg.message)
+        createToast(arg.message.message, TYPES.ERROR)
     })
   }, [])
 
   useEffect(() => {
     if (toast) {
       setToasts([...toasts, toast])
-      setToast(null)
     }
   }, [toast])
+
+  useEffect(() => {
+    if (
+      toasts.length &&
+      toast &&
+      toasts.filter((t) => t.created === toast.created).length !== 0
+    ) {
+      gsap.from(`[data-toast="${toast.created}"]`, {
+        xPercent: 100,
+        opacity: 0,
+        onStart: () => {
+          setToast(null)
+        },
+      })
+    }
+  }, [toast, toasts])
 
   useEffect(() => {
     if (remove) {
