@@ -1,0 +1,28 @@
+{
+  "name": "vincent-van-git--web",
+  "version": "1.0.0",
+  "description": "Use your Github contributions graph as a canvas",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate:sw": " workbox generateSW workbox-config.js",
+    "build": "parcel build src/index.pug",
+    "postbuild": "npm run generate:sw",
+    "dev": "parcel src/index.pug"
+  },
+  "author": "jh3y <jh3y@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "gsap": "^3.4.0",
+    "node-fetch": "^2.3.0",
+    "luxon": "^1.25.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "@babel/core": "^7.12.3",
+    "pug": "^3.0.0",
+    "stylus": "^0.54.7",
+    "workbox-cli": "^5.1.3"
+  }
+}
