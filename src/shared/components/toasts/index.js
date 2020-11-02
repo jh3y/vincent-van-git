@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { ipcRenderer } from 'electron'
+import React, { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
-import Close from '../icons/close.svg'
 import gsap from 'gsap'
-import { MESSAGING_CONSTANTS } from '../../../../constants'
+import Toast from '../toast'
 import './toasts.styl'
 
 const TYPES = {
@@ -14,25 +12,7 @@ const TYPES = {
 
 const DISMISS = 3000
 
-const Toast = ({ created, message, type, onDismiss, autoDismiss }) => {
-  useEffect(() => {
-    let timer
-    if (autoDismiss) {
-      timer = setTimeout(onDismiss, autoDismiss)
-    }
-    return () => clearTimeout(timer)
-  }, [autoDismiss])
-  return (
-    <div data-toast={created} className={`toast toast--${type}`}>
-      {message}
-      <button title="Dismiss" onClick={onDismiss}>
-        <Close />
-      </button>
-    </div>
-  )
-}
-
-const Toasts = () => {
+const Toasts = ({ toast: toastToAdd }) => {
   const [toast, setToast] = useState(null)
   const [remove, setRemove] = useState(null)
   const [toasts, setToasts] = useState([])
@@ -45,6 +25,19 @@ const Toasts = () => {
       },
     })
   }
+  // useEffect(() => {
+  //   ipcRenderer.on(MESSAGING_CONSTANTS.INFO, (event, arg) => {
+  //     if (!arg.silent && arg.message) createToast(arg.message, TYPES.INFO)
+  //   })
+  //   ipcRenderer.on(MESSAGING_CONSTANTS.SUCCESS, (event, arg) => {
+  //     if (!arg.silent && arg.message) createToast(arg.message, TYPES.SUCCESS)
+  //   })
+  //   ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
+  //     if (!arg.silent && arg.message)
+  //       createToast(arg.message.message, TYPES.ERROR)
+  //   })
+  // }, [])
+
   const createToast = (message, type) => {
     const TOAST_TIME = DateTime.local().toISO({ includeOffset: true })
     const TOAST = {
@@ -54,20 +47,15 @@ const Toasts = () => {
       autoDismiss: type !== TYPES.ERROR ? DISMISS : 0,
       onDismiss: onDismiss(TOAST_TIME),
     }
-    setToast(TOAST)
+    return TOAST
   }
+
   useEffect(() => {
-    ipcRenderer.on(MESSAGING_CONSTANTS.INFO, (event, arg) => {
-      if (!arg.silent && arg.message) createToast(arg.message, TYPES.INFO)
-    })
-    ipcRenderer.on(MESSAGING_CONSTANTS.SUCCESS, (event, arg) => {
-      if (!arg.silent && arg.message) createToast(arg.message, TYPES.SUCCESS)
-    })
-    ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
-      if (!arg.silent && arg.message)
-        createToast(arg.message.message, TYPES.ERROR)
-    })
-  }, [])
+    if (toastToAdd) {
+      const NEW_TOAST = createToast(toastToAdd.message, toastToAdd.type)
+      setToast(NEW_TOAST)
+    }
+  }, [toastToAdd])
 
   useEffect(() => {
     if (toast) {

@@ -1,24 +1,40 @@
 import React, { useEffect, useState, useRef, useReducer, Fragment } from 'react'
 import { render } from 'react-dom'
-// import { gsap } from 'gsap'
+import CommitGrid from '../../shared/components/commit-grid'
+import InfoDrawer from '../../shared/components/info-drawer'
+import SettingsDrawer from '../../shared/components/settings-drawer'
+import Actions from '../../shared/components/actions'
+import Progress from '../../shared/components/progress'
+
 import 'regenerator-runtime/runtime'
 import '../styles/index.styl'
+import '../../shared/styles/shared.styl'
 
 const ROOT_NODE = document.querySelector('#app')
 
 const URL = '/.netlify/functions/vincent'
 const App = () => {
+  const [coding, setCoding] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
+  const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
+
   const generateScript = async () => {
     console.info('cool')
-    const resp = await(await fetch(URL)).json()
+    const resp = await (await fetch(URL)).json()
     console.info(resp)
   }
 
   return (
-    <div>
-      <h1>Test Shell Script Generation</h1>
-      <button onClick={generateScript}>Generate</button>
-    </div>
+    <Fragment>
+      <SettingsDrawer />
+      <InfoDrawer />
+      <div className='canvas'>
+        <CommitGrid cells={cellsRef.current} />
+        <Actions />
+      </div>
+      {(coding || generating) && <Progress />}
+    </Fragment>
   )
 }
 
@@ -43,4 +59,4 @@ const App = () => {
 //   })
 // }
 
-render(<App/>, ROOT_NODE)
+render(<App />, ROOT_NODE)

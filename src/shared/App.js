@@ -6,11 +6,6 @@ import SettingsDrawer from './settings-drawer'
 import InfoDrawer from './info-drawer'
 import Toasts from './toasts'
 import Vincent from './vincent'
-import Save from './icons/content-save.svg'
-import Delete from './icons/delete.svg'
-import Download from './icons/download.svg'
-import Erase from './icons/eraser-variant.svg'
-import Rocket from './icons/rocket.svg'
 import AudioOn from './icons/volume-on.svg'
 import AudioOff from './icons/volume-off.svg'
 import useSound from '../hooks/useSound'
@@ -240,100 +235,7 @@ const App = () => {
           key={cleared}
           cells={cellsRef.current}
         />
-        <div className="actions-container">
-          <button
-            disabled={
-              !dirty ||
-              !config.username ||
-              !config.repository ||
-              !config.branch ||
-              coding ||
-              uploading ||
-              submitted
-            }
-            className="icon-button"
-            onClick={sendGrid}
-            title="Push Image">
-            <Rocket />
-          </button>
-          <button
-            disabled={
-              !dirty ||
-              !config.username ||
-              !config.repository ||
-              !config.branch ||
-              coding ||
-              uploading ||
-              submitted
-            }
-            className="icon-button"
-            onClick={generateScript}
-            title="Download Shell Script">
-            <Download />
-          </button>
-          <button
-            disabled={!dirty || coding || uploading || submitted}
-            className="icon-button"
-            onClick={clearGrid}
-            title="Wipe Grid">
-            <Erase />
-          </button>
-          {config && config.images && config.images.length > 0 && (
-            <div className="select-wrapper">
-              <select
-                onClick={() => {
-                  if (!config.muted) clickPlay()
-                }}
-                disabled={coding || uploading || submitted}
-                onChange={selectImage}
-                value={image}>
-                <option>{SELECT_PLACEHOLDER}</option>
-                {config.images.map(({ name, commits }, index) => (
-                  <option
-                    value={JSON.stringify({
-                      name,
-                      commits,
-                    })}
-                    key={index}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div
-            className="configuration-container"
-            style={{
-              '--scale': dirty ? 1 : 0,
-              visibility: dirty ? 'visible' : 'hidden',
-            }}>
-            <input
-              type="text"
-              disabled={coding || uploading || submitted}
-              placeholder={INPUT_PLACEHOLDER}
-              onChange={(e) => setImageName(e.target.value)}
-              value={imageName}
-            />
-            <button
-              disabled={
-                imageName.trim() === '' || coding || uploading || submitted
-              }
-              className="icon-button"
-              onClick={saveImage}
-              title="Save image configuration">
-              <Save />
-            </button>
-            {image !== '' && (
-              <button
-                disabled={coding || uploading || submitted}
-                className="icon-button"
-                onClick={deleteImage}
-                title="Delete Image Configuration">
-                <Delete />
-              </button>
-            )}
-          </div>
-        </div>
+        <Actions />
         <SettingsDrawer {...config} />
         <InfoDrawer {...config} />
       </div>

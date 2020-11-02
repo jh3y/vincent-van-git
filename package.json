@@ -36,14 +36,13 @@
     "tone": "^14.7.58"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-react": "^7.9.4",
-    "browser-sync": "^2.26.12",
-    "cross-env": "^7.0.2",
-    "electron": "^9.0.0",
-    "electron-packager": "^14.2.1",
-    "nodemon": "^2.0.4",
+    "@babel/core": "^7.12.3",
+    "@storybook/addon-actions": "^6.0.27",
+    "@storybook/addon-essentials": "^6.0.27",
+    "@storybook/addon-links": "^6.0.27",
+    "@storybook/react": "^6.0.27",
+    "@svgr/parcel-plugin-svgr": "^5.4.0",
+    "babel-loader": "^8.1.0",
     "parcel-bundler": "^1.12.4",
     "pug": "^3.0.0",
     "stylus": "^0.54.8"

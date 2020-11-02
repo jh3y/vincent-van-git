@@ -65,55 +65,27 @@ ul > li + li {
   margin-top: calc(var(--padding) / 2);
 }
 
-.app,
-.root {
+
+#app {
   min-height: 100vh;
   width: 100vw;
-}
-
-.progress-screen {
-  --right: 100;
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  background-color: hsl(0, 0%, 100%);
-}
-
-.app,
-.progress-screen {
+  overflow: auto;
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
   flex-direction: column;
-}
 
-.progress-screen {
-  -webkit-clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
-  clip-path: inset(0 calc(var(--right, 100) * 1%) 0 calc(var(--left, 0) * 1%));
-
-  &__message {
-    color: var(--color);
-    font-size: 1.5rem;
+  @media(min-width: 768px) {
+    align-items: center;
   }
 }
 
 button {
   cursor: pointer;
-  border: 0;
-  background: 0;
 }
 
-.app .actions-container {
-  margin-top: var(--padding);
-  display: flex;
-}
-
-.actions-container > * + *,
-.configuration-container > * + * {
-  margin-left: var(--padding);
+.canvas {
+  padding: var(--padding);
 }
 
 .icon-button {
@@ -125,6 +97,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 0;
+  background: 0;
 
   &:hover {
     background: var(--grey);
@@ -163,15 +137,6 @@ button {
   height: 0;
   width: 0;
   transform: scale(0);
-}
-
-.configuration-container {
-  -webkit-clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
-  clip-path: inset(0 calc((100 - (var(--scale) * 100)) * 1%) 0 0);
-  transition: clip-path 0.25s;
-  display: flex;
-  border-left: 2px solid var(--grey);
-  padding-left: var(--padding);
 }
 
 select,

@@ -57,3 +57,8 @@ ehthumbs.db
 # Windows shortcuts #
 #####################
 *.lnk
+# Local Netlify folder
+.netlify
+.env
+vincent-van-git.config.json
+app

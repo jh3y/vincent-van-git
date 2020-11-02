@@ -1,0 +1,35 @@
+import { Fragment, useState } from 'react'
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import Progress from './'
+
+export const OnClick = () => {
+  const [hide, setHide] = useState(false)
+  return (
+    <Fragment>
+      <Progress message="Please wait..." hide={hide} />
+      <button
+        style={{ position: 'absolute', zIndex: 5 }}
+        onClick={() => setHide(!hide)}>
+        Toggle Progress
+      </button>
+    </Fragment>
+  )
+}
+
+<Meta title="Components/Progress" />
+
+# Progress Screen
+
+Progress screen that shows vincent on processing.
+
+<Canvas>
+  <Story name="Default">
+    <Progress />
+  </Story>
+  <Story name="Message">
+    <Progress message="Please wait..." />
+  </Story>
+  <Story name="Hide on Click">
+    <OnClick />
+  </Story>
+</Canvas>
