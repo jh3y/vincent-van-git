@@ -1,0 +1,34 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import Actions from './'
+
+<Meta title="Components/Actions" />
+
+# Actions
+
+Actions for Commit Grid.
+
+<Canvas>
+  <Story name="Default">
+    <Actions />
+  </Story>
+  <Story name="Disabled">
+    <Actions disabled/>
+  </Story>
+  <Story name="Dirty">
+    <Actions dirty/>
+  </Story>
+  <Story name="Images">
+    <Actions images={[
+      {name: 'A', commits: [1, 2, 3]},
+      {name: 'B', commits: [1, 2, 3]},
+      {name: 'C', commits: [1, 2, 3]},
+    ]}/>
+  </Story>
+  <Story name="Full">
+    <Actions dirty images={[
+      {name: 'A', commits: [1, 2, 3]},
+      {name: 'B', commits: [1, 2, 3]},
+      {name: 'C', commits: [1, 2, 3]},
+    ]}/>
+  </Story>
+</Canvas>

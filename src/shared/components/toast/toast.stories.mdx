@@ -1,0 +1,23 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import Toast from './'
+
+<Meta title="Components/Toasts/Toast" />
+
+# Toast
+
+Toast component to communicate events to user.
+
+<Canvas>
+  <Story name="Default">
+    <Toast/>
+  </Story>
+  <Story name="Info">
+    <Toast message="Info" type="info"/>
+  </Story>
+  <Story name="Error">
+    <Toast message="Error" type="error"/>
+  </Story>
+  <Story name="Success">
+    <Toast message="Success" type="success"/>
+  </Story>
+</Canvas>

@@ -1,0 +1,32 @@
+import { useState, Fragment } from 'react'
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
+import { MESSAGING_CONSTANTS } from '../../constants'
+import Toasts from './'
+
+export const Toaster = (Story) => {
+  const [toast, setToast] = useState(null)
+  const createToast = () => {
+    setToast({
+      message: 'Hello?',
+      type: MESSAGING_CONSTANTS.INFO,
+    })
+  }
+  return (
+    <Fragment>
+      <button onClick={createToast}>Toast something!</button>
+      <Toasts toast={toast} />
+    </Fragment>
+  )
+}
+
+<Meta title="Components/Toasts/Toasts" />
+
+# Toasts
+
+Communicate events to the user.
+
+<Canvas>
+  <Story decorators={[Toaster]} name="Default">
+    <Toasts />
+  </Story>
+</Canvas>
