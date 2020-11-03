@@ -8,7 +8,11 @@ const MAX_LEVEL = 4
 const NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 const PITCH = [5, 4, 3, 2]
 
-export default function CommitGrid({ cells = [], onChange = () => {}, muted = false }) {
+export default function CommitGrid({
+  cells = [],
+  onChange = () => {},
+  muted = false,
+}) {
   const gridRef = useRef(null)
   const rendered = useRef(null)
   const erasing = useRef(null)

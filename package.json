@@ -14,12 +14,23 @@
   ],
   "main": "main.js",
   "scripts": {
-    "predev": "cross-env NODE_ENV=development parcel build src/ui/markup/index.pug --target electron -d app --public-url ./",
-    "dev": "browser-sync start --server app --files app --no-open & parcel watch src/ui/markup/index.pug --target electron -d app --public-url ./ & cross-env NODE_ENV=development nodemon --ignore src/ui --ignore vincent-van-git.config.json --ignore app/ --exec \"electron .\"",
-    "preprod": "cross-env NODE_ENV=production parcel build src/ui/markup/index.pug --target electron -d app --public-url ./",
-    "prod": "electron .",
-    "prepackage": "cross-env NODE_ENV=production parcel build src/ui/markup/index.pug --target electron -d app --public-url ./",
-    "package": "electron-packager . --out=./release-build"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate:sw": " workbox generateSW workbox-config.js",
+    "dev:web": "parcel src/web/index.pug",
+    "build:web": "parcel build src/web/index.pug",
+    "postbuild": "npm run generate:sw",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "lint": "eslint src",
+    "lint-fix": "eslint src --fix",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.{js,json,css}": [
+      "eslint",
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "@svgr/parcel-plugin-svgr": "^5.4.0",
@@ -27,12 +38,11 @@
     "electron-dl": "^3.0.2",
     "gsap": "^3.5.1",
     "luxon": "^1.25.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.3.0",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-hook-form": "^6.9.2",
-    "regenerator-runtime": "^0.13.7",
-    "shelljs": "^0.8.4",
+    "react-hook-form": "^6.9.6",
     "tone": "^14.7.58"
   },
   "devDependencies": {
@@ -42,9 +52,28 @@
     "@storybook/addon-links": "^6.0.27",
     "@storybook/react": "^6.0.27",
     "@svgr/parcel-plugin-svgr": "^5.4.0",
+    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.1",
     "parcel-bundler": "^1.12.4",
+    "prettier": "^2.1.2",
+    "prettier-eslint": "^11.0.0",
     "pug": "^3.0.0",
-    "stylus": "^0.54.8"
+    "react-is": "^17.0.1",
+    "stylus": "^0.54.7",
+    "stylus-loader": "^4.2.0",
+    "workbox-cli": "^5.1.3"
   }
 }

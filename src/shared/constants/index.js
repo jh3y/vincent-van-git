@@ -1,3 +1,6 @@
+const Mirror = (values) =>
+  Object.freeze(values.reduce((keys, key) => ({ ...keys, [key]: key }), {}))
+
 const APP_CONSTANTS = {
   WIDTH: 943,
   HEIGHT: 360,
@@ -16,6 +19,8 @@ const MESSAGING_CONSTANTS = {
   CONFIG: 'VVG_CONFIG',
 }
 
+const ACTIONS = Mirror(['SETTINGS', 'AUDIO', 'GENERATE'])
+
 const MESSAGES = {
   NO_CHANGE: 'Configuration unchanged',
   SAVED: 'Configuration saved',
@@ -26,7 +31,7 @@ const MESSAGES = {
   CONFIRM_PUSH: `Push to Github?
 NOTE: For complex drawings, Vincent van Git can generate 1000s of commits.
 This takes some time. Be patient.`,
-  CONFIRM_DELETE: name => `Delete configuration${name ? ` ${name} ` : ''}?`,
+  CONFIRM_DELETE: (name) => `Delete configuration${name ? ` ${name} ` : ''}?`,
   DOWNLOADED: 'Shell script downloaded',
   GENERATING: 'Generating shell script',
   PUSHING: 'Generating and pushing commits',
@@ -41,8 +46,4 @@ This takes some time. Be patient.`,
   EMPTY: 'Repository not empty',
 }
 
-export {
-  APP_CONSTANTS,
-  MESSAGING_CONSTANTS,
-  MESSAGES,
-}
+export { APP_CONSTANTS, MESSAGING_CONSTANTS, MESSAGES, ACTIONS }

@@ -6,8 +6,9 @@ import SettingsDrawer from '../../shared/components/settings-drawer'
 import Actions from '../../shared/components/actions'
 import Progress from '../../shared/components/progress'
 import Toasts from '../../shared/components/toasts'
+import AudioToggle from '../../shared/components/audio-toggle'
 import useSound from '../../shared/hooks/useSound'
-import { MESSAGES } from '../../shared/constants'
+import { MESSAGES, ACTIONS, MESSAGING_CONSTANTS } from '../../shared/constants'
 import CLICK_PATH from '../../shared/assets/audio/click.mp3'
 import SPARKLE_PATH from '../../shared/assets/audio/sparkle.mp3'
 import TRUMPET_PATH from '../../shared/assets/audio/trumpet-fanfare.mp3'
@@ -19,13 +20,61 @@ import '../../shared/styles/shared.styl'
 
 const ROOT_NODE = document.querySelector('#app')
 
+// Generate initial state based off of localStorage
+const INITIAL_STATE = {
+  muted: false,
+  images: [],
+  username: 'jh3y',
+  repository: 'pic',
+  branch: 'main',
+  toast: null,
+  generating: false,
+}
+// TODO: Hook this up to localStorage
+const APP_REDUCER = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case ACTIONS.AUDIO:
+      return {
+        ...state,
+        muted: !state.muted,
+        toast: {
+          type: MESSAGING_CONSTANTS.INFO,
+          message: `Audio ${!state.muted ? 'off' : 'on'}`,
+        },
+      }
+    case ACTIONS.GENERATE:
+      return {
+        ...state,
+        generating: !state.generating,
+        toast: {
+          type: MESSAGING_CONSTANTS.INFO,
+          message: MESSAGES.GENERATING,
+        },
+      }
+    case ACTIONS.SETTINGS:
+      return {
+        ...state,
+        toast: {
+          type: MESSAGING_CONSTANTS.INFO,
+          message: MESSAGES.SETTINGS,
+        },
+        username: action.username,
+        repository: action.repository,
+        branch: action.branch,
+      }
+    default:
+      return state
+  }
+}
+
 const URL = '/.netlify/functions/vincent'
 const App = () => {
-  const [coding, setCoding] = useState(false)
+  const [
+    { username, repository, branch, muted, toast, images, generating },
+    dispatch,
+  ] = useReducer(APP_REDUCER, INITIAL_STATE)
+  const [hideVincent, setHideVincent] = useState(false)
   const [cleared, setCleared] = useState(null)
-  const [toast, setToast] = useState(null)
-  const [muted, setMuted] = useState(false)
-  const [generating, setGenerating] = useState(false)
   const [image, setImage] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [imageName, setImageName] = useState(null)
@@ -38,63 +87,96 @@ const App = () => {
   const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
 
   const onGenerate = async () => {
-    console.info('cool')
-    const resp = await (await fetch(URL)).json()
-    console.info(resp)
+    if (!muted) clickPlay()
+    dispatch({
+      type: ACTIONS.GENERATE,
+    })
   }
 
+  useEffect(() => {
+    const getMultiplier = async () => {
+      const resp = await (await fetch(URL)).json()
+      // Check for errors, make the right dispatch...
+      // Validating configuration
+      // Then error potentially
+      // Then generating script
+      // Then generating script success
+      setTimeout(() => {
+        console.info(resp)
+        setHideVincent(true)
+      }, 5000)
+    }
+    if (generating) {
+      getMultiplier()
+    }
+  }, [generating])
+
+  const onSettingsUpdate = (settings) => {
+    dispatch({
+      type: ACTIONS.SETTINGS,
+      ...settings,
+    })
+  }
+
+  const onProgressEnd = () => {
+    setHideVincent(false)
+    dispatch({
+      type: ACTIONS.GENERATE,
+    })
+  }
+
+  const toggleAudio = () => {
+    if (muted) clickPlay()
+    dispatch({
+      type: ACTIONS.AUDIO,
+    })
+  }
   const checkDirty = () => {
     setDirty(cellsRef.current.filter((cell) => cell !== 0).length > 0)
   }
 
   const onWipe = () => {
     if (!muted) clickPlay()
-    if (confirm(MESSAGES.CONFIRM_WIPE)) {
+    if (window.confirm(MESSAGES.CONFIRM_WIPE)) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
       setImage('') // Setting to empty string to select default.
       setImageName('')
       setCleared(new Date().toUTCString())
       setDirty(false)
       if (!muted) brushPlay()
-      // ipcRenderer.send(MESSAGING_CONSTANTS.INFO, {
-      //   message: MESSAGES.WIPED,
-      // })
     }
   }
 
+  const disabled = dirty || !username || !repository || !branch || generating
+
   return (
     <Fragment>
-      <SettingsDrawer />
+      <SettingsDrawer
+        username={username}
+        repository={repository}
+        branch={branch}
+        onSubmit={onSettingsUpdate}
+      />
       <InfoDrawer />
       <div className="canvas">
-        <CommitGrid key={cleared} cells={cellsRef.current} onChange={checkDirty} />
-        <Actions disabled={!dirty} onGenerate={onGenerate} onWipe={onWipe} />
+        <CommitGrid
+          key={cleared}
+          muted={muted}
+          cells={cellsRef.current}
+          onChange={checkDirty}
+        />
+        <Actions
+          dirty={dirty}
+          disabled={!disabled}
+          onGenerate={onGenerate}
+          onWipe={onWipe}
+        />
       </div>
-      {(coding || generating) && <Progress />}
+      {generating && <Progress hide={hideVincent} onComplete={onProgressEnd} />}
+      <AudioToggle onToggle={toggleAudio} />
       <Toasts toast={toast} />
     </Fragment>
   )
 }
-
-// Set up all the config hooks, etc. and pass them through to app at this point perhaps??
-// TODO:: Rebind these events.
-// 1.
-// IPCRENDERER CALL TO CLOSE SETTINGS MENU ON SAVE... OR TO CLOSE ONCE SAVED TO LOCAL STORAGE.
-// useEffect(() => {
-//   ipcRenderer.on(MESSAGING_CONSTANTS.UPDATED, (event, args) => {
-//     if (!args.silent) {
-//       setOpen(false)
-//     }
-//   })
-// }, [])
-// 2.
-// Handle onSubmit for settings form. Either do an ipcRenderer call or dispatch an action for useReducer?
-// const onSubmit = (config) => {
-//   if (!muted) clickPlay()
-//   ipcRenderer.send(MESSAGING_CONSTANTS.UPDATE, {
-//     config,
-//     silent: false,
-//   })
-// }
 
 render(<App />, ROOT_NODE)

@@ -19,7 +19,7 @@ const InfoDrawer = ({ footer: Footer }) => {
             </li>
           </ul>
         </section>
-        {Footer && <Footer/>}
+        {Footer && <Footer />}
       </Fragment>
     </Drawer>
   )

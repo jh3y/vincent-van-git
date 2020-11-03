@@ -1,3 +1,4 @@
+import T from 'prop-types'
 import React from 'react'
 import Save from '../../assets/icons/content-save.svg'
 import Delete from '../../assets/icons/delete.svg'
@@ -39,37 +40,39 @@ const Actions = ({
   onDelete,
   image,
   images,
-  muted,
 }) => {
   return (
     <div className="actions-container">
-      <button
-        disabled={disabled}
-        className="icon-button"
-        onClick={onPush}
-        title="Push Image">
-        <Rocket />
-      </button>
-      <button
-        disabled={disabled}
-        className="icon-button"
-        onClick={onGenerate}
-        title="Download Shell Script">
-        <Download />
-      </button>
-      <button
-        disabled={disabled}
-        className="icon-button"
-        onClick={onWipe}
-        title="Wipe Grid">
-        <Erase />
-      </button>
+      {onPush && (
+        <button
+          disabled={disabled}
+          className="icon-button"
+          onClick={onPush}
+          title="Push Image">
+          <Rocket />
+        </button>
+      )}
+      {onGenerate && (
+        <button
+          disabled={disabled}
+          className="icon-button"
+          onClick={onGenerate}
+          title="Download Shell Script">
+          <Download />
+        </button>
+      )}
+      {onWipe && (
+        <button
+          disabled={disabled}
+          className="icon-button"
+          onClick={onWipe}
+          title="Wipe Grid">
+          <Erase />
+        </button>
+      )}
       {images && images.length > 0 && (
         <div className="select-wrapper">
-          <select
-            disabled={disabled}
-            onChange={onSelect}
-            value={image}>
+          <select disabled={disabled} onChange={onSelect} value={image}>
             <option>{SELECT_PLACEHOLDER}</option>
             {images.map(({ name, commits }, index) => (
               <option
@@ -116,6 +119,20 @@ const Actions = ({
       </div>
     </div>
   )
+}
+
+Actions.propTypes = {
+  disabled: T.bool,
+  dirty: T.bool,
+  onPush: T.func,
+  onGenerate: T.func,
+  onWipe: T.func,
+  onSelect: T.func,
+  onSave: T.func,
+  onUpdate: T.func,
+  onDelete: T.func,
+  image: T.string,
+  images: T.array,
 }
 
 export default Actions
