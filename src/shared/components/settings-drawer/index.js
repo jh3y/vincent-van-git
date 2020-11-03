@@ -1,25 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import Cog from '../../assets/icons/cog.svg'
 import useSound from '../../hooks/useSound'
 import Drawer from '../drawer'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
-  const { muted, username, branch, repository, open, onSubmit } = props
-  const { play: clickPlay } = useSound(
-    'https://assets.codepen.io/605876/click.mp3'
-  )
+  const [close, setClose] = useState(false)
+  const { username, branch, repository, onSubmit } = props
   const { handleSubmit, register, setValue } = useForm()
   useEffect(() => {
     for (const key of ['username', 'repository', 'branch']) {
       setValue(key, props[key])
     }
-  }, [username, repository, branch])
+  }, [props, setValue])
+
+  const preSubmit = (values) => {
+    setClose(true)
+    console.info('hello?')
+    if (onSubmit) onSubmit(values)
+  }
 
   return (
-    <Drawer title="Settings" left={true} icon={Cog} open={open}>
-      <form className="sliding-drawer__form" onSubmit={handleSubmit(onSubmit)}>
+    <Drawer
+      title="Settings"
+      close={close}
+      onClose={() => setClose(false)}
+      left={true}
+      icon={Cog}>
+      <form className="sliding-drawer__form" onSubmit={handleSubmit(preSubmit)}>
         <div className="sliding-drawer__form-field">
           <label htmlFor="username">Username</label>
           <input id="username" name="username" required ref={register()} />
@@ -38,7 +47,7 @@ const SettingsDrawer = (props) => {
   )
 }
 SettingsDrawer.defaultProps = {
-  onSubmit: () => {}
+  onSubmit: () => {},
 }
 
 export default SettingsDrawer

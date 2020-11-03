@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import useSound from '../../hooks/useSound'
+import CLICK_PATH from '../../assets/audio/click.mp3'
 import './drawer.styl'
 
 const SettingsDrawer = ({
@@ -7,12 +8,12 @@ const SettingsDrawer = ({
   open: isOpen,
   children,
   icon: Icon,
+  close,
   left = true,
   muted = false,
+  onClose,
 }) => {
-  const { play: clickPlay } = useSound(
-    'https://assets.codepen.io/605876/click.mp3'
-  )
+  const { play: clickPlay } = useSound(CLICK_PATH)
   const drawerRef = useRef(null)
   const [open, setOpen] = useState(isOpen)
 
@@ -22,7 +23,16 @@ const SettingsDrawer = ({
   }
 
   useEffect(() => {
-    if (isOpen !== open) setOpen(isOpen)
+    if (close) setOpen(false)
+  }, [close])
+
+  useEffect(() => {
+    if (!open && onClose) onClose()
+  }, [open, onClose])
+
+  useEffect(() => {
+    console.info('change??')
+    setOpen(isOpen)
   }, [isOpen])
 
   useEffect(() => {

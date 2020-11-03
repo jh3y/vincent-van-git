@@ -30,25 +30,16 @@ const Progress = ({ error, message, onComplete, hide }) => {
     })
   }, [])
   useEffect(() => {
-    let timer
     if (hide) {
-      timer = setTimeout(
-        () => {
-          gsap.to(progressRef.current, {
-            '--left': 100,
-            duration: TIMING.SLIDE,
-            onComplete: () => {
-              if (onComplete) onComplete()
-            },
-          })
+      gsap.to(progressRef.current, {
+        '--left': 100,
+        duration: TIMING.SLIDE,
+        onComplete: () => {
+          if (onComplete) onComplete()
         },
-        error ? TIMING.BUFFER * 500 : TIMING.BUFFER * 1000
-      )
+      })
     }
-    return () => {
-      if (timer) clearInterval(timer)
-    }
-  }, [hide])
+  }, [hide, onComplete])
   return (
     <div
       ref={progressRef}
