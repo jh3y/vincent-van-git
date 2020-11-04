@@ -1,10 +1,11 @@
 import T from 'prop-types'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Save from '../../assets/icons/content-save.svg'
 import Delete from '../../assets/icons/delete.svg'
 import Download from '../../assets/icons/download.svg'
 import Erase from '../../assets/icons/eraser-variant.svg'
 import Rocket from '../../assets/icons/rocket.svg'
+import { SELECT_PLACEHOLDER, INPUT_PLACEHOLDER } from '../../constants'
 import './actions.styl'
 // Currently what === disabled
 // !dirty ||
@@ -26,8 +27,6 @@ import './actions.styl'
 // onChange === Updating the current image name
 // onDelete === Deleting the current image
 // onSave === Saving the current image
-const SELECT_PLACEHOLDER = 'Select Configuration'
-const INPUT_PLACEHOLDER = 'Configuration Name'
 const Actions = ({
   disabled,
   dirty,
@@ -36,11 +35,17 @@ const Actions = ({
   onWipe,
   onSelect,
   onSave,
-  onUpdate,
   onDelete,
-  image,
   images,
+  selectedImage,
+  nameRef,
 }) => {
+  const [name, setName] = useState('')
+  const [selected, setSelected] = useState('')
+
+  useEffect(() => {
+    setSelected(selectedImage)
+  }, [selectedImage])
   return (
     <div className="actions-container">
       {onPush && (
@@ -72,7 +77,7 @@ const Actions = ({
       )}
       {images && images.length > 0 && (
         <div className="select-wrapper">
-          <select disabled={disabled} onChange={onSelect} value={image}>
+          <select disabled={disabled} onChange={onSelect} value={selected}>
             <option>{SELECT_PLACEHOLDER}</option>
             {images.map(({ name, commits }, index) => (
               <option
@@ -95,19 +100,19 @@ const Actions = ({
         }}>
         <input
           type="text"
+          ref={nameRef}
           disabled={disabled}
           placeholder={INPUT_PLACEHOLDER}
-          onChange={onUpdate}
-          value={image}
+          onChange={(e) => setName(e.target.value)}
         />
         <button
-          disabled={disabled}
+          disabled={name.trim() === '' || disabled}
           className="icon-button"
           onClick={onSave}
           title="Save image configuration">
           <Save />
         </button>
-        {image !== '' && (
+        {selected !== '' && (
           <button
             disabled={disabled}
             className="icon-button"
@@ -131,8 +136,15 @@ Actions.propTypes = {
   onSave: T.func,
   onUpdate: T.func,
   onDelete: T.func,
-  image: T.string,
+  imageName: T.string,
   images: T.array,
+  selectedImage: T.string, // Stringified Object!
+  nameRef: T.oneOfType([
+    // Either a function
+    T.func,
+    // Or the instance of a DOM native element (see the note about SSR)
+    T.shape({ current: T.instanceOf(Element) }),
+  ]),
 }
 
 export default Actions
