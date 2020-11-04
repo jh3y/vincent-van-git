@@ -11,10 +11,10 @@ import useSound from '../../shared/hooks/useSound'
 import {
   MESSAGES,
   ACTIONS,
-  MESSAGING_CONSTANTS,
   SELECT_PLACEHOLDER,
-  INPUT_PLACEHOLDER,
+  MESSAGING_CONSTANTS,
 } from '../../shared/constants'
+import { generateShellScript } from './shell'
 import CLICK_PATH from '../../shared/assets/audio/click.mp3'
 import SPARKLE_PATH from '../../shared/assets/audio/sparkle.mp3'
 import TRUMPET_PATH from '../../shared/assets/audio/trumpet-fanfare.mp3'
@@ -23,197 +23,29 @@ import BRUSH_PATH from '../../shared/assets/audio/brush-stroke.mp3'
 import 'regenerator-runtime/runtime'
 import '../styles/index.styl'
 import '../../shared/styles/shared.styl'
+import { usePersistentReducer, APP_REDUCER } from './reducer'
 
 const ROOT_NODE = document.querySelector('#app')
+const REPO_PATH = '.vincents-canvas'
 
-// Generate initial state based off of localStorage
-const INITIAL_STATE = {
-  muted: false,
-  images: [],
-  username: 'jh3y',
-  repository: 'pic',
-  branch: 'main',
-  toast: null,
-  generating: false,
-  selected: '',
-}
-
-// const saveConfig = (name, commits) => {
-//   try {
-//     let newImages = CONFIG.images ? [...CONFIG.images] : []
-//     const EXISTS_BY_NAME =
-//       newImages.filter((image) => image.name === name).length > 0
-//     const EXISTS_BY_VALUE =
-//       newImages.filter(
-//         (image) => JSON.stringify(image.commits) === JSON.stringify(commits)
-//       ).length > 0
-//     if (EXISTS_BY_VALUE && EXISTS_BY_NAME) {
-//       return {
-//         message: MESSAGES.NO_CHANGE,
-//         config: CONFIG,
-//         saved: JSON.stringify({ name, commits }),
-//       }
-//     } else if (EXISTS_BY_VALUE) {
-//       newImages = newImages.map((image) => ({
-//         name:
-//           JSON.stringify(image.commits) === JSON.stringify(commits)
-//             ? name
-//             : image.name,
-//         commits: image.commits,
-//       }))
-//     } else if (EXISTS_BY_NAME) {
-//       newImages = newImages.map((image) => ({
-//         name: image.name,
-//         commits: image.name === name ? commits : image.commits,
-//       }))
-//     } else {
-//       newImages = [...newImages, { name, commits }]
-//     }
-
-//     const NEW_CONFIG = {
-//       ...CONFIG,
-//       images: newImages,
-//     }
-//     await writeConfig(NEW_CONFIG)
-//     return {
-//       message:
-//         EXISTS_BY_NAME || EXISTS_BY_VALUE ? MESSAGES.UPDATED : MESSAGES.SAVED,
-//       config: NEW_CONFIG,
-//       saved: JSON.stringify({ name, commits }),
-//     }
-//   } catch (err) {
-//     if (!name || !commits) throw Error('VVG: No name or commits passed')
-//     else throw Error(err)
-//   }
-// }
-
-// TODO: Hook this up to localStorage
-const APP_REDUCER = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ACTIONS.AUDIO:
-      return {
-        ...state,
-        muted: !state.muted,
-        toast: {
-          type: MESSAGING_CONSTANTS.INFO,
-          message: `Audio ${!state.muted ? 'off' : 'on'}`,
-        },
-      }
-    case ACTIONS.SAVE: {
-      // Need to check if it exists by name or value.
-      const EXISTS_BY_NAME =
-        state.images.filter((image) => image.name === action.name).length > 0
-      const EXISTS_BY_VALUE =
-        state.images.filter(
-          (image) => image.commits === JSON.stringify(action.commits)
-        ).length > 0
-      // If it does, update or do nothing.
-      if (EXISTS_BY_VALUE && EXISTS_BY_NAME) {
-        return {
-          ...state,
-          toast: {
-            type: MESSAGING_CONSTANTS.INFO,
-            message: MESSAGES.NO_CHANGE,
-          },
-          selected: JSON.stringify({
-            name: action.name,
-            commits: JSON.stringify(action.commits),
-          }),
-        }
-      } else if (EXISTS_BY_VALUE) {
-        // Changing the name
-        return {
-          ...state,
-          images: state.images.map((image) => ({
-            name:
-              image.commits === JSON.stringify(action.commits)
-                ? action.name
-                : image.name,
-            commits: image.commits,
-          })),
-          selected: JSON.stringify({
-            name: action.name,
-            commits: JSON.stringify(action.commits),
-          }),
-          toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
-            message: MESSAGES.UPDATED,
-          },
-        }
-      } else if (EXISTS_BY_NAME) {
-        return {
-          ...state,
-          images: state.images.map((image) => ({
-            name: image.name,
-            commits:
-              image.name === action.name
-                ? JSON.stringify(action.commits)
-                : image.commits,
-          })),
-          selected: JSON.stringify({
-            name: action.name,
-            commits: JSON.stringify(action.commits),
-          }),
-          toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
-            message: MESSAGES.UPDATED,
-          },
-        }
-      } else {
-        return {
-          ...state,
-          images: [
-            ...state.images,
-            {
-              commits: JSON.stringify(action.commits),
-              name: action.name,
-            },
-          ],
-          selected: JSON.stringify({
-            name: action.name,
-            commits: JSON.stringify(action.commits),
-          }),
-          toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
-            message: MESSAGES.SAVED,
-          },
-        }
-      }
-    }
-    case ACTIONS.GENERATE:
-      return {
-        ...state,
-        generating: !state.generating,
-        toast: {
-          type: MESSAGING_CONSTANTS.INFO,
-          message: MESSAGES.GENERATING,
-        },
-      }
-    case ACTIONS.LOAD:
-      return {
-        ...state,
-        selected: action.selected,
-        cleared: new Date().toUTCString(),
-      }
-    case ACTIONS.WIPE:
-      return {
-        ...state,
-        cleared: new Date().toUTCString(),
-        selected: '',
-      }
-    case ACTIONS.SETTINGS:
-      return {
-        ...state,
-        toast: {
-          type: MESSAGING_CONSTANTS.INFO,
-          message: MESSAGES.SETTINGS,
-        },
-        username: action.username,
-        repository: action.repository,
-        branch: action.branch,
-      }
-    default:
-      return state
+const downloadFile = (
+  content,
+  type = 'text/plain',
+  name = 'vincent-van-git.sh'
+) => {
+  console.info(window.URL, window.URL.createObjectURL)
+  if (window.URL.createObjectURL) {
+    const FILE = new Blob([content.toString()], { type: type })
+    const FILE_URL = window.URL.createObjectURL(FILE)
+    const link = document.createElement('a')
+    link.href = FILE_URL
+    link.download = name
+    document.body.appendChild(link)
+    link.click()
+    window.URL.revokeObjectURL(FILE_URL)
+    link.remove()
+  } else {
+    console.info(content)
   }
 }
 
@@ -232,17 +64,21 @@ const App = () => {
       selected,
     },
     dispatch,
-  ] = useReducer(APP_REDUCER, INITIAL_STATE)
+  ] = usePersistentReducer(APP_REDUCER, undefined, ['toast'])
   const [hideVincent, setHideVincent] = useState(false)
-  const [dirty, setDirty] = useState(false)
+  const [dirty, setDirty] = useState(selected !== '')
   const nameInput = useRef(null)
+  const errorRef = useRef(null)
   const { play: clickPlay } = useSound(CLICK_PATH)
   const { play: sparklePlay } = useSound(SPARKLE_PATH)
   const { play: brushPlay } = useSound(BRUSH_PATH)
   const { play: trumpetPlay } = useSound(TRUMPET_PATH)
-
   const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
-  const cellsRef = useRef(new Array(NUMBER_OF_DAYS).fill(0))
+  const cellsRef = useRef(
+    selected
+      ? JSON.parse(JSON.parse(selected).commits)
+      : new Array(NUMBER_OF_DAYS).fill(0)
+  )
 
   // Utility function to make sure days match the number of cells
   // for the current day.
@@ -260,11 +96,28 @@ const App = () => {
     return commits
   }
 
+  useEffect(() => {
+    if (selected.trim() !== '' && nameInput.current)
+      nameInput.current.value = JSON.parse(selected).name
+  }, [selected])
+
+  const onDelete = () => {
+    if (!muted) clickPlay()
+    const name = JSON.parse(selected).name
+    if (window.confirm(MESSAGES.CONFIRM_DELETE(name))) {
+      nameInput.current.value = ''
+      dispatch({
+        type: ACTIONS.DELETE,
+        name,
+      })
+    }
+  }
+
   const onSelect = (e) => {
-    // console.info(e.target.value)
     // This one is to keep the select in sync. Set selected in the dispatch
     // setImage(e.target.value)
     if (e.target.value === SELECT_PLACEHOLDER) {
+      nameInput.current.value = ''
       return dispatch({
         type: ACTIONS.LOAD,
         selected: '',
@@ -277,7 +130,6 @@ const App = () => {
       JSON.parse(commits),
       NUMBER_OF_DAYS
     ).map((value) => parseInt(value, 10))
-    console.info('getting here???')
     // Trick to re-render the commit grid without using state for cells
     setDirty(true)
     if (!muted) sparklePlay()
@@ -307,23 +159,72 @@ const App = () => {
 
   useEffect(() => {
     const getMultiplier = async () => {
-      const resp = await (await fetch(URL)).json()
+      try {
+        const resp = await fetch(
+          `${URL}?username=${username}&repository=${repository}&branch=${branch}`
+        )
+        if (resp.status !== 200) {
+          const ERROR = await resp.json()
+          errorRef.current = ERROR.message
+          dispatch({
+            type: ACTIONS.TOASTING,
+            toast: {
+              type: MESSAGING_CONSTANTS.ERROR,
+              message: ERROR.message,
+            },
+          })
+          setHideVincent(true)
+        } else {
+          setTimeout(async () => {
+            console.info(resp)
+            const multiplier = await (await resp.json()).multiplier
+            dispatch({
+              type: ACTIONS.TOASTING,
+              toast: {
+                type: MESSAGING_CONSTANTS.INFO,
+                message: `Max commits ${multiplier}`,
+              },
+            })
+            const SCRIPT = await generateShellScript(
+              cellsRef.current,
+              username,
+              multiplier,
+              repository,
+              branch,
+              REPO_PATH,
+              dispatch
+            )
+            downloadFile(SCRIPT)
+            setHideVincent(true)
+          }, 5000)
+        }
+      } catch (err) {
+        errorRef.current = err.message
+        dispatch({
+          type: ACTIONS.TOASTING,
+          toast: {
+            type: MESSAGING_CONSTANTS.ERROR,
+            message: err.message,
+          },
+        })
+        setHideVincent(true)
+      }
       // Check for errors, make the right dispatch...
       // Validating configuration
       // Then error potentially
       // Then generating script
       // Then generating script success
-      setTimeout(() => {
-        console.info(resp)
-        setHideVincent(true)
-      }, 5000)
     }
     if (generating) {
       getMultiplier()
+    } else {
+      setHideVincent(false)
+      if (errorRef.current) errorRef.current = null
     }
   }, [generating])
 
   const onSettingsUpdate = (settings) => {
+    if (!muted) clickPlay()
     dispatch({
       type: ACTIONS.SETTINGS,
       ...settings,
@@ -331,10 +232,11 @@ const App = () => {
   }
 
   const onProgressEnd = () => {
-    setHideVincent(false)
     dispatch({
+      silent: errorRef.current,
       type: ACTIONS.GENERATE,
     })
+    if (!errorRef.current) trumpetPlay()
   }
 
   const toggleAudio = () => {
@@ -359,8 +261,8 @@ const App = () => {
       })
     }
   }
-
-  const disabled = dirty || !username || !repository || !branch || generating
+  const disabled =
+    generating || !dirty || (dirty && !(username || repository || branch))
 
   return (
     <Fragment>
@@ -383,7 +285,8 @@ const App = () => {
           selectedImage={selected}
           dirty={dirty}
           onSelect={onSelect}
-          disabled={!disabled}
+          disabled={disabled}
+          onDelete={onDelete}
           onGenerate={onGenerate}
           onWipe={onWipe}
           onSave={onSave}
