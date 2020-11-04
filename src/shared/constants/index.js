@@ -19,7 +19,7 @@ const MESSAGING_CONSTANTS = {
   CONFIG: 'VVG_CONFIG',
 }
 
-const ACTIONS = Mirror(['SETTINGS', 'AUDIO', 'GENERATE'])
+const ACTIONS = Mirror(['SETTINGS', 'AUDIO', 'GENERATE', 'LOAD', 'WIPE'])
 
 const MESSAGES = {
   NO_CHANGE: 'Configuration unchanged',
@@ -45,5 +45,8 @@ This takes some time. Be patient.`,
   GIT: 'Git not installed',
   EMPTY: 'Repository not empty',
 }
+
+export const SELECT_PLACEHOLDER = 'Select Configuration'
+export const INPUT_PLACEHOLDER = 'Configuration Name'
 
 export { APP_CONSTANTS, MESSAGING_CONSTANTS, MESSAGES, ACTIONS }

@@ -18,10 +18,12 @@ import CLICK_PATH from '../../../assets/audio/click.mp3'
 import SPARKLE_PATH from '../../../assets/audio/sparkle.mp3'
 import TRUMPET_PATH from '../../../assets/audio/trumpet-fanfare.mp3'
 import BRUSH_PATH from '../../../assets/audio/brush-stroke.mp3'
-import { MESSAGING_CONSTANTS, MESSAGES } from '../../../constants'
-
-const SELECT_PLACEHOLDER = 'Select Configuration'
-const INPUT_PLACEHOLDER = 'Configuration Name'
+import {
+  MESSAGING_CONSTANTS,
+  MESSAGES,
+  SELECT_PLACEHOLDER,
+  INPUT_PLACEHOLDER,
+} from '../../../constants'
 
 const TIMING = {
   SLIDE: 1,
