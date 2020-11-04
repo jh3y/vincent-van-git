@@ -40,11 +40,19 @@ const Actions = ({
   selectedImage,
   nameRef,
 }) => {
-  const [name, setName] = useState('')
-  const [selected, setSelected] = useState('')
+  const [name, setName] = useState(
+    selectedImage.trim() === '' ? '' : JSON.parse(selectedImage).name
+  )
+  const [selected, setSelected] = useState(selectedImage)
+
+  const onChange = (e) => {
+    setSelected(e.target.value)
+    if (onSelect) onSelect(e)
+  }
 
   useEffect(() => {
     setSelected(selectedImage)
+    setName(selectedImage === '' ? '' : JSON.parse(selectedImage).name)
   }, [selectedImage])
   return (
     <div className="actions-container">
@@ -68,7 +76,7 @@ const Actions = ({
       )}
       {onWipe && (
         <button
-          disabled={disabled}
+          disabled={disabled || !dirty}
           className="icon-button"
           onClick={onWipe}
           title="Wipe Grid">
@@ -77,7 +85,7 @@ const Actions = ({
       )}
       {images && images.length > 0 && (
         <div className="select-wrapper">
-          <select disabled={disabled} onChange={onSelect} value={selected}>
+          <select disabled={disabled} onChange={onChange} value={selected}>
             <option>{SELECT_PLACEHOLDER}</option>
             {images.map(({ name, commits }, index) => (
               <option

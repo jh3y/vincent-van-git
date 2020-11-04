@@ -1,67 +1,75 @@
-// const { DateTime } = require('luxon')
-// const processCommits = async (onCommit, commits, username) => {
-//   const TODAY = DateTime.local()
-//   const START_DAY = TODAY.minus({ days: commits.length - 1 })
-//   // const COMMIT_MULTIPLIER = await scrapeCommits(username)
-//   const COMMIT_MULTIPLIER = 50
-//   let total = 0
-//   let genArr = []
-//   for (let c = 0; c < commits.length; c++) {
-//     const LEVEL = commits[c]
-//     const NUMBER_COMMITS = LEVEL * COMMIT_MULTIPLIER
-//     total += NUMBER_COMMITS
-//     genArr.push(NUMBER_COMMITS)
-//   }
-//   // Loop through the commits matching up the dates and creating empty commits
-//   for (let d = 0; d < genArr.length; d++) {
-//     // Git commit structure
-//     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-//     const COMMITS = genArr[d]
-//     if (COMMITS > 0) {
-//       const COMMIT_DAY = START_DAY.plus({ days: d })
-//       for (let c = 0; c < COMMITS; c++) {
-//         onCommit(COMMIT_DAY.toISO({includeOffset: true}))
-//       }
-//     }
-//   }
-// }
+const cheerio = require('cheerio')
+const fetch = require('node-fetch')
 
-// /**
-//  * Generate and write a shell script to a location.
-//  */
-// const generateShellScript = async (
-//   commits,
-//   username,
-//   repository,
-//   branch,
-//   repoPath,
-// ) => {
-//   let SCRIPT = `mkdir ${repoPath}
-// cd ${repoPath}
-// git init
-// `
-//   await processCommits(date => {
-//     SCRIPT += `git commit --allow-empty --date "${date})}" -m "Vincent paints again"\n`
-//   }, commits, username)
-//   SCRIPT += `git remote add origin https://github.com/${username}/${repository}.git\n`
-//   SCRIPT += `git push -u origin ${branch}\n`
-//   SCRIPT += `cd ../\n`
-//   SCRIPT += `rm -rf ${repoPath}\n`
-//   return SCRIPT
-// }
+const MESSAGES = {
+  BRANCH: 'Branch does not exist',
+  USERNAME: 'Username does not exist',
+  REPO: 'Repository does not exist',
+  EMPTY: 'Repository not empty',
+}
 
+const isEmptyRepo = async (username, repository) => {
+  const PAGE = await (
+    await fetch(
+      `https://github.com/${username}/${repository}/graphs/commit-activity`
+    )
+  ).text()
+  return PAGE.indexOf('blankslate') !== -1
+}
 
-// Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
+const validateConfig = async (username, repository, branch) => {
+  const userRequest = await fetch(`https://github.com/${username}`)
+  if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME)
+  // Check for the repository
+  const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
+  console.info(repository, repoRequest)
+  if (repoRequest.status !== 200) throw Error(MESSAGES.REPO)
+  // Check for the repository branch
+  const branchRequest = await fetch(
+    `https://github.com/jh3y/${repository}/tree/${branch}`
+  )
+  if (branchRequest.status !== 200) throw Error(MESSAGES.BRANCH)
+  const IS_EMPTY = await isEmptyRepo(username, repository)
+  if (!IS_EMPTY) throw Error(MESSAGES.EMPTY)
+  return false
+}
+
+const getCommitMultiplier = async (username) => {
+  // Grab the page HTML
+  const PAGE = await (
+    await fetch(`https://github.com/users/${username}/contributions`)
+  ).text()
+  // Use Cheerio to parse the highest commit count for a day
+  const $ = cheerio.load(PAGE)
+  // Instantiate an Array
+  const COUNTS = []
+  // Grab all the commit days from the HTML
+  const COMMIT_DAYS = $('[data-count]')
+  // Loop over the commit days and grab the "data-count" attribute
+  // Push it into the Array
+  COMMIT_DAYS.each((DAY) => {
+    COUNTS.push(parseInt(COMMIT_DAYS[DAY].attribs['data-count'], 10))
+  })
+  // console.info(`Largest amount of commits for a day is ${Math.max(...COUNTS)}`)
+  return Math.max(...COUNTS)
+}
 exports.handler = async (event, context) => {
   try {
+    const { username, repository, branch } = event.queryStringParameters
+    await validateConfig(username, repository, branch)
+    const MAX_COMMITS = await getCommitMultiplier(username)
+    // Scrape with these here to make checks.
+    // Then either send back the multiplier or an Error.
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: `Hello World!` }),
-      // // more keys you can return:
-      // headers: { "headerName": "headerValue", ... },
-      // isBase64Encoded: true,
+      body: JSON.stringify({ multiplier: MAX_COMMITS }),
     }
   } catch (err) {
-    return { statusCode: 500, body: err.toString() }
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: err.message,
+      }),
+    }
   }
 }
