@@ -1,6 +1,6 @@
 import { useState, Fragment } from 'react'
 import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks'
-import { MESSAGING_CONSTANTS } from '../../constants'
+import { TOASTS } from '../../constants'
 import Toasts from './'
 
 export const Toaster = (Story) => {
@@ -8,7 +8,7 @@ export const Toaster = (Story) => {
   const createToast = () => {
     setToast({
       message: 'Hello?',
-      type: MESSAGING_CONSTANTS.INFO,
+      type: TOASTS.INFO,
     })
   }
   return (

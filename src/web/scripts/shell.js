@@ -1,5 +1,6 @@
-import { ACTIONS, MESSAGING_CONSTANTS } from '../../shared/constants'
+import { ACTIONS, README, TOASTS } from '../../shared/constants'
 import { DateTime } from 'luxon'
+import zip from 'jszip'
 import 'regenerator-runtime/runtime'
 
 const processCommits = async (commits, multiplier, onCommit, dispatch) => {
@@ -17,7 +18,7 @@ const processCommits = async (commits, multiplier, onCommit, dispatch) => {
   dispatch({
     type: ACTIONS.TOASTING,
     toast: {
-      type: MESSAGING_CONSTANTS.INFO,
+      type: TOASTS.INFO,
       message: `Generating ${total} commits!`,
     },
   })
@@ -32,6 +33,25 @@ const processCommits = async (commits, multiplier, onCommit, dispatch) => {
         onCommit(COMMIT_DAY.toISO({ includeOffset: true }))
       }
     }
+  }
+}
+
+const downloadFile = async (content) => {
+  if (window.URL.createObjectURL) {
+    const FILE = new zip()
+    FILE.file('vincent-van-git.sh', content)
+    FILE.file('README.md', README)
+    const ZIP_FILE = await FILE.generateAsync({ type: 'blob' })
+    const FILE_URL = window.URL.createObjectURL(ZIP_FILE)
+    const link = document.createElement('a')
+    link.href = FILE_URL
+    link.download = 'vincent.zip'
+    document.body.appendChild(link)
+    link.click()
+    window.URL.revokeObjectURL(FILE_URL)
+    link.remove()
+  } else {
+    throw Error('Error downloading file')
   }
 }
 
@@ -63,4 +83,4 @@ git init
   return SCRIPT
 }
 
-export { generateShellScript }
+export { generateShellScript, downloadFile }

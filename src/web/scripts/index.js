@@ -8,13 +8,14 @@ import Progress from '../../shared/components/progress'
 import Toasts from '../../shared/components/toasts'
 import AudioToggle from '../../shared/components/audio-toggle'
 import useSound from '../../shared/hooks/useSound'
+
 import {
   MESSAGES,
   ACTIONS,
   SELECT_PLACEHOLDER,
-  MESSAGING_CONSTANTS,
+  TOASTS,
 } from '../../shared/constants'
-import { generateShellScript } from './shell'
+import { downloadFile, generateShellScript } from './shell'
 import CLICK_PATH from '../../shared/assets/audio/click.mp3'
 import SPARKLE_PATH from '../../shared/assets/audio/sparkle.mp3'
 import TRUMPET_PATH from '../../shared/assets/audio/trumpet-fanfare.mp3'
@@ -27,26 +28,6 @@ import { usePersistentReducer, APP_REDUCER } from './reducer'
 
 const ROOT_NODE = document.querySelector('#app')
 const REPO_PATH = '.vincents-canvas'
-
-const downloadFile = (
-  content,
-  type = 'text/plain',
-  name = 'vincent-van-git.txt'
-) => {
-  if (window.URL.createObjectURL) {
-    const FILE = new Blob([content], { type: type })
-    const FILE_URL = window.URL.createObjectURL(FILE)
-    const link = document.createElement('a')
-    link.href = FILE_URL
-    link.download = name
-    document.body.appendChild(link)
-    link.click()
-    window.URL.revokeObjectURL(FILE_URL)
-    link.remove()
-  } else {
-    throw Error('Error downloading file')
-  }
-}
 
 const URL = '/.netlify/functions/vincent'
 const App = () => {
@@ -168,7 +149,7 @@ const App = () => {
           dispatch({
             type: ACTIONS.TOASTING,
             toast: {
-              type: MESSAGING_CONSTANTS.ERROR,
+              type: TOASTS.ERROR,
               message: ERROR.message,
             },
           })
@@ -179,7 +160,7 @@ const App = () => {
             dispatch({
               type: ACTIONS.TOASTING,
               toast: {
-                type: MESSAGING_CONSTANTS.INFO,
+                type: TOASTS.INFO,
                 message: `Max commits ${multiplier}`,
               },
             })
@@ -201,7 +182,7 @@ const App = () => {
         dispatch({
           type: ACTIONS.TOASTING,
           toast: {
-            type: MESSAGING_CONSTANTS.ERROR,
+            type: TOASTS.ERROR,
             message: err.message,
           },
         })
