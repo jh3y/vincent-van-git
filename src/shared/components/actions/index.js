@@ -156,7 +156,7 @@ Actions.propTypes = {
     // Either a function
     T.func,
     // Or the instance of a DOM native element (see the note about SSR)
-    T.shape({ current: T.instanceOf(Element) }),
+    T.shape({ current: T.array }),
   ]),
 }
 
