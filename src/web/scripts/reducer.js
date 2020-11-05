@@ -166,6 +166,10 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         ...state,
         cleared: new Date().toUTCString(),
         selected: '',
+        toast: {
+          type: MESSAGING_CONSTANTS.INFO,
+          message: MESSAGES.WIPED,
+        },
       }
     case ACTIONS.SETTINGS:
       return {

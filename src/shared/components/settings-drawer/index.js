@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import T from 'prop-types'
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import Cog from '../../assets/icons/cog.svg'
-import useSound from '../../hooks/useSound'
 import Drawer from '../drawer'
 import './settings-drawer.styl'
 
 const SettingsDrawer = (props) => {
   const [close, setClose] = useState(false)
-  const { username, branch, repository, onSubmit } = props
+  const { onSubmit } = props
   const { handleSubmit, register, setValue } = useForm()
   useEffect(() => {
     for (const key of ['username', 'repository', 'branch']) {
@@ -17,7 +17,6 @@ const SettingsDrawer = (props) => {
 
   const preSubmit = (values) => {
     setClose(true)
-    console.info('hello?')
     if (onSubmit) onSubmit(values)
   }
 
@@ -48,6 +47,9 @@ const SettingsDrawer = (props) => {
 }
 SettingsDrawer.defaultProps = {
   onSubmit: () => {},
+}
+SettingsDrawer.propTypes = {
+  onSubmit: T.func,
 }
 
 export default SettingsDrawer

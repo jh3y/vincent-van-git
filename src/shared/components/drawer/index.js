@@ -1,9 +1,10 @@
+import T from 'prop-types'
 import React, { useEffect, useRef, useState } from 'react'
 import useSound from '../../hooks/useSound'
 import CLICK_PATH from '../../assets/audio/click.mp3'
 import './drawer.styl'
 
-const SettingsDrawer = ({
+const Drawer = ({
   title,
   open: isOpen,
   children,
@@ -31,7 +32,6 @@ const SettingsDrawer = ({
   }, [open, onClose])
 
   useEffect(() => {
-    console.info('change??')
     setOpen(isOpen)
   }, [isOpen])
 
@@ -53,7 +53,7 @@ const SettingsDrawer = ({
     return () => {
       document.removeEventListener('click', handleClick)
     }
-  }, [open])
+  }, [open, left])
 
   return (
     <div
@@ -75,4 +75,15 @@ const SettingsDrawer = ({
   )
 }
 
-export default SettingsDrawer
+Drawer.propTypes = {
+  title: T.string,
+  open: T.bool,
+  children: T.oneOfType([T.arrayOf(T.node), T.node]),
+  icon: T.func,
+  close: T.bool,
+  left: T.bool,
+  muted: T.bool,
+  onClose: T.func,
+}
+
+export default Drawer

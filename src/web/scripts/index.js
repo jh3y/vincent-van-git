@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useReducer, Fragment } from 'react'
+import React, { useEffect, useState, useRef, Fragment } from 'react'
 import { render } from 'react-dom'
 import CommitGrid from '../../shared/components/commit-grid'
 import InfoDrawer from '../../shared/components/info-drawer'
@@ -31,9 +31,8 @@ const REPO_PATH = '.vincents-canvas'
 const downloadFile = (
   content,
   type = 'text/plain',
-  name = 'vincent-van-git.sh'
+  name = 'vincent-van-git.txt'
 ) => {
-  console.info(window.URL, window.URL.createObjectURL)
   if (window.URL.createObjectURL) {
     const FILE = new Blob([content], { type: type })
     const FILE_URL = window.URL.createObjectURL(FILE)
@@ -45,7 +44,7 @@ const downloadFile = (
     window.URL.revokeObjectURL(FILE_URL)
     link.remove()
   } else {
-    console.info(content)
+    throw Error('Error downloading file')
   }
 }
 
@@ -176,7 +175,6 @@ const App = () => {
           setHideVincent(true)
         } else {
           setTimeout(async () => {
-            console.info(resp)
             const multiplier = await (await resp.json()).multiplier
             dispatch({
               type: ACTIONS.TOASTING,
@@ -209,11 +207,6 @@ const App = () => {
         })
         setHideVincent(true)
       }
-      // Check for errors, make the right dispatch...
-      // Validating configuration
-      // Then error potentially
-      // Then generating script
-      // Then generating script success
     }
     if (generating) {
       getMultiplier()
@@ -221,7 +214,7 @@ const App = () => {
       setHideVincent(false)
       if (errorRef.current) errorRef.current = null
     }
-  }, [generating])
+  }, [generating, branch, dispatch, repository, username])
 
   const onSettingsUpdate = (settings) => {
     if (!muted) clickPlay()

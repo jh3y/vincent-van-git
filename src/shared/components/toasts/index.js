@@ -1,3 +1,4 @@
+import T from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import gsap from 'gsap'
@@ -25,32 +26,19 @@ const Toasts = ({ toast: toastToAdd }) => {
       },
     })
   }
-  // useEffect(() => {
-  //   ipcRenderer.on(MESSAGING_CONSTANTS.INFO, (event, arg) => {
-  //     if (!arg.silent && arg.message) createToast(arg.message, TYPES.INFO)
-  //   })
-  //   ipcRenderer.on(MESSAGING_CONSTANTS.SUCCESS, (event, arg) => {
-  //     if (!arg.silent && arg.message) createToast(arg.message, TYPES.SUCCESS)
-  //   })
-  //   ipcRenderer.on(MESSAGING_CONSTANTS.ERROR, (event, arg) => {
-  //     if (!arg.silent && arg.message)
-  //       createToast(arg.message.message, TYPES.ERROR)
-  //   })
-  // }, [])
-
-  const createToast = (message, type) => {
-    const TOAST_TIME = DateTime.local().toISO({ includeOffset: true })
-    const TOAST = {
-      created: TOAST_TIME,
-      type,
-      message,
-      autoDismiss: type !== TYPES.ERROR ? DISMISS : 0,
-      onDismiss: onDismiss(TOAST_TIME),
-    }
-    return TOAST
-  }
 
   useEffect(() => {
+    const createToast = (message, type) => {
+      const TOAST_TIME = DateTime.local().toISO({ includeOffset: true })
+      const TOAST = {
+        created: TOAST_TIME,
+        type,
+        message,
+        autoDismiss: type !== TYPES.ERROR ? DISMISS : 0,
+        onDismiss: onDismiss(TOAST_TIME),
+      }
+      return TOAST
+    }
     if (toastToAdd) {
       const NEW_TOAST = createToast(toastToAdd.message, toastToAdd.type)
       setToast(NEW_TOAST)
@@ -58,10 +46,15 @@ const Toasts = ({ toast: toastToAdd }) => {
   }, [toastToAdd])
 
   useEffect(() => {
-    if (toast) {
+    if (
+      toast &&
+      toasts.filter((t) => t.created === toast.created).length === 0
+    ) {
+      // Adds toasts into pile
+      // setToast(null)
       setToasts([...toasts, toast])
     }
-  }, [toast])
+  }, [toast, toasts])
 
   useEffect(() => {
     if (
@@ -72,9 +65,7 @@ const Toasts = ({ toast: toastToAdd }) => {
       gsap.from(`[data-toast="${toast.created}"]`, {
         xPercent: 100,
         opacity: 0,
-        onStart: () => {
-          setToast(null)
-        },
+        onStart: () => setToast(null),
       })
     }
   }, [toast, toasts])
@@ -84,7 +75,7 @@ const Toasts = ({ toast: toastToAdd }) => {
       setToasts([...toasts.filter((t) => t.created !== remove)])
       setRemove(null)
     }
-  }, [remove])
+  }, [remove, toasts])
 
   return (
     <div className="toasts">
@@ -100,6 +91,14 @@ const Toasts = ({ toast: toastToAdd }) => {
       ))}
     </div>
   )
+}
+
+Toasts.propTypes = {
+  toast: T.shape({
+    created: T.string,
+    message: T.string,
+    type: T.oneOf(['ERROR', 'INFO', 'SUCCESS']),
+  }),
 }
 
 export default Toasts

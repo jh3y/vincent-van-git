@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import * as Tone from 'tone'
+import { MonoSynth } from 'tone/build/tone'
 import BRUSH_PATH from '../../assets/images/brush.png'
 import './commit-grid.styl'
 
@@ -82,7 +82,7 @@ export default function CommitGrid({
   }
 
   useEffect(() => {
-    synthRef.current = new Tone.MonoSynth({
+    synthRef.current = new MonoSynth({
       volume: -8,
       detune: 0,
       portamento: 0,
@@ -133,9 +133,6 @@ export default function CommitGrid({
         type: 'square8',
       },
     }).toDestination()
-    // synthRef.current.set({
-    //   volume: -20
-    // })
   }, [])
 
   if (!cells.length) return null
