@@ -22,15 +22,15 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "lint": "eslint src",
-    "lint-fix": "eslint src --fix",
-    "precommit": "lint-staged"
+    "lint-fix": "eslint src --fix"
   },
   "lint-staged": {
     "src/**/*.{js,json,css}": [
       "eslint",
       "prettier --write",
       "git add"
-    ]
+    ],
+    "*.js": "eslint --cache --fix"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
@@ -74,5 +74,10 @@
     "stylus": "^0.54.7",
     "stylus-loader": "^4.2.0",
     "workbox-cli": "^5.1.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
