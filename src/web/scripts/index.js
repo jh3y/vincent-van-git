@@ -35,7 +35,7 @@ const downloadFile = (
 ) => {
   console.info(window.URL, window.URL.createObjectURL)
   if (window.URL.createObjectURL) {
-    const FILE = new Blob([content.toString()], { type: type })
+    const FILE = new Blob([content], { type: type })
     const FILE_URL = window.URL.createObjectURL(FILE)
     const link = document.createElement('a')
     link.href = FILE_URL
