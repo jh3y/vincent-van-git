@@ -1,4 +1,4 @@
-import { ACTIONS, README, TOASTS } from '../../shared/constants'
+import { ACTIONS, README, TOASTS, MESSAGES } from '../../shared/constants'
 import { DateTime } from 'luxon'
 import zip from 'jszip'
 import 'regenerator-runtime/runtime'
@@ -19,7 +19,8 @@ const processCommits = async (commits, multiplier, onCommit, dispatch) => {
     type: ACTIONS.TOASTING,
     toast: {
       type: TOASTS.INFO,
-      message: `Generating ${total} commits!`,
+      message: MESSAGES.TOTAL(total),
+      life: 4000,
     },
   })
   // Loop through the commits matching up the dates and creating empty commits

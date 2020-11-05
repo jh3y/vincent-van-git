@@ -149,6 +149,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         ...(!action.silent && {
           toast: {
             type: TOASTS.INFO,
+            life: !state.generating ? 1000 : 5000,
             message: !state.generating
               ? MESSAGES.GENERATING
               : MESSAGES.DOWNLOADED,
@@ -173,8 +174,9 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         cleared: new Date().toUTCString(),
         selected: '',
         toast: {
-          type: TOASTS.INFO,
+          type: TOASTS.SUCCESS,
           message: MESSAGES.WIPED,
+          life: 2000,
         },
       }
     case ACTIONS.SETTINGS:
@@ -183,6 +185,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         toast: {
           type: TOASTS.INFO,
           message: MESSAGES.SETTINGS,
+          life: 1000,
         },
         username: action.username,
         repository: action.repository,

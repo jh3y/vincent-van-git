@@ -2,10 +2,10 @@ const cheerio = require('cheerio')
 const fetch = require('node-fetch')
 
 const MESSAGES = {
-  BRANCH: 'Branch does not exist',
-  USERNAME: 'Username does not exist',
-  REPO: 'Repository does not exist',
-  EMPTY: 'Repository not empty',
+  BRANCH: (branch, repository, username) => `Branch "${branch}" does not exist for repository "${username}/${repository}"`,
+  USERNAME: username => `Username "${username}" does not exist`,
+  REPO: (username, repository) => `Repository "${username}/${repository}" does not exist`,
+  EMPTY: (username, repository) => `Repository "${username}/${repository}" is not empty`,
 }
 
 const isEmptyRepo = async (username, repository) => {
@@ -19,17 +19,17 @@ const isEmptyRepo = async (username, repository) => {
 
 const validateConfig = async (username, repository, branch) => {
   const userRequest = await fetch(`https://github.com/${username}`)
-  if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME)
+  if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME(username))
   // Check for the repository
   const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
-  if (repoRequest.status !== 200) throw Error(MESSAGES.REPO)
+  if (repoRequest.status !== 200) throw Error(MESSAGES.REPO(username, repository))
   // Check for the repository branch
   const branchRequest = await fetch(
     `https://github.com/jh3y/${repository}/tree/${branch}`
   )
-  if (branchRequest.status !== 200) throw Error(MESSAGES.BRANCH)
+  if (branchRequest.status !== 200) throw Error(MESSAGES.BRANCH(branch, repository, username))
   const IS_EMPTY = await isEmptyRepo(username, repository)
-  if (!IS_EMPTY) throw Error(MESSAGES.EMPTY)
+  if (!IS_EMPTY) throw Error(MESSAGES.EMPTY(username, repository))
   return false
 }
 
