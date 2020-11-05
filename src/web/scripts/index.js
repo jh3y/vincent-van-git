@@ -119,7 +119,7 @@ const App = () => {
     })
   }
 
-  const onGenerate = async () => {
+  const onGenerate = () => {
     if (!muted) clickPlay()
     if (window.confirm(MESSAGES.CONFIRM_DOWNLOAD)) {
       dispatch({

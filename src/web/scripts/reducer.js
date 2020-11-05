@@ -148,7 +148,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         generating: !state.generating,
         ...(!action.silent && {
           toast: {
-            type: TOASTS.INFO,
+            type: !state.generating ? TOASTS.INFO : TOASTS.SUCCESS,
             life: !state.generating ? 1000 : 5000,
             message: !state.generating
               ? MESSAGES.GENERATING
