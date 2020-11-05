@@ -22,7 +22,6 @@ const validateConfig = async (username, repository, branch) => {
   if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME)
   // Check for the repository
   const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
-  console.info(repository, repoRequest)
   if (repoRequest.status !== 200) throw Error(MESSAGES.REPO)
   // Check for the repository branch
   const branchRequest = await fetch(

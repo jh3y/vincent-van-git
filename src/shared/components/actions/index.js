@@ -5,30 +5,12 @@ import Delete from '../../assets/icons/delete.svg'
 import Download from '../../assets/icons/download.svg'
 import Erase from '../../assets/icons/eraser-variant.svg'
 import Rocket from '../../assets/icons/rocket.svg'
-import { SELECT_PLACEHOLDER, INPUT_PLACEHOLDER } from '../../constants'
+import { SELECT_PLACEHOLDER, INPUT_PLACEHOLDER, MESSAGES } from '../../constants'
 import './actions.styl'
-// Currently what === disabled
-// !dirty ||
-// !config.username ||
-// !config.repository ||
-// !config.branch ||
-// coding ||
-// uploading ||
-// submitted
-// Consider unconfigured for wipe grid???
-// Select should work when !dirty
 
-// onPush === Github Push (Deprecating???)
-// onGenerate === Shell Script generation (Shell icon?)
-// onWipe === Clear grid
-// images === Config images
-// muted === Whether sound should play on click
-// onSelect === Select image
-// onChange === Updating the current image name
-// onDelete === Deleting the current image
-// onSave === Saving the current image
 const Actions = ({
   disabled,
+  generating,
   dirty,
   onPush,
   onGenerate,
@@ -39,6 +21,7 @@ const Actions = ({
   images,
   selectedImage,
   nameRef,
+  cellsRef,
 }) => {
   const [name, setName] = useState(
     selectedImage.trim() === '' ? '' : JSON.parse(selectedImage).name
@@ -46,8 +29,19 @@ const Actions = ({
   const [selected, setSelected] = useState(selectedImage)
 
   const onChange = (e) => {
-    setSelected(e.target.value)
-    if (onSelect) onSelect(e)
+    if (
+      (dirty && selectedImage === '') || // That would be wiping a new creation to load one
+      (selectedImage !== '' &&
+        JSON.parse(selectedImage).commits !== JSON.stringify(cellsRef.current))
+    ) {
+      if (confirm(MESSAGES.DISCARD(JSON.parse(e.target.value).name))) {
+        setSelected(e.target.value)
+        if (onSelect) onSelect(e)
+      }
+    } else {
+      setSelected(e.target.value)
+      if (onSelect) onSelect(e)
+    }
   }
 
   useEffect(() => {
@@ -85,7 +79,7 @@ const Actions = ({
       )}
       {images && images.length > 0 && (
         <div className="select-wrapper">
-          <select disabled={disabled} onChange={onChange} value={selected}>
+          <select disabled={generating} onChange={onChange} value={selected}>
             <option>{SELECT_PLACEHOLDER}</option>
             {images.map(({ name, commits }, index) => (
               <option
@@ -136,6 +130,7 @@ const Actions = ({
 
 Actions.propTypes = {
   disabled: T.bool,
+  generating: T.bool,
   dirty: T.bool,
   onPush: T.func,
   onGenerate: T.func,

@@ -47,7 +47,7 @@ const App = () => {
   ] = usePersistentReducer(APP_REDUCER, undefined, ['toast'])
   const [hideVincent, setHideVincent] = useState(false)
   const [dirty, setDirty] = useState(selected !== '')
-  const nameInput = useRef(null)
+  const inputRef = useRef(null)
   const errorRef = useRef(null)
   const { play: clickPlay } = useSound(CLICK_PATH)
   const { play: sparklePlay } = useSound(SPARKLE_PATH)
@@ -77,15 +77,15 @@ const App = () => {
   }
 
   useEffect(() => {
-    if (selected.trim() !== '' && nameInput.current)
-      nameInput.current.value = JSON.parse(selected).name
+    if (selected.trim() !== '' && inputRef.current)
+      inputRef.current.value = JSON.parse(selected).name
   }, [selected])
 
   const onDelete = () => {
     if (!muted) clickPlay()
     const name = JSON.parse(selected).name
     if (window.confirm(MESSAGES.CONFIRM_DELETE(name))) {
-      nameInput.current.value = ''
+      inputRef.current.value = ''
       dispatch({
         type: ACTIONS.DELETE,
         name,
@@ -97,7 +97,7 @@ const App = () => {
     // This one is to keep the select in sync. Set selected in the dispatch
     // setImage(e.target.value)
     if (e.target.value === SELECT_PLACEHOLDER) {
-      nameInput.current.value = ''
+      inputRef.current.value = ''
       return dispatch({
         type: ACTIONS.LOAD,
         selected: '',
@@ -105,7 +105,7 @@ const App = () => {
     }
     const { name, commits } = JSON.parse(e.target.value)
     // Update the input ref
-    nameInput.current.value = name
+    inputRef.current.value = name
     cellsRef.current = sanitizeDays(
       JSON.parse(commits),
       NUMBER_OF_DAYS
@@ -133,7 +133,7 @@ const App = () => {
     dispatch({
       type: ACTIONS.SAVE,
       commits: cellsRef.current,
-      name: nameInput.current.value,
+      name: inputRef.current.value,
     })
   }
 
@@ -227,7 +227,7 @@ const App = () => {
     if (!muted) clickPlay()
     if (window.confirm(MESSAGES.CONFIRM_WIPE)) {
       cellsRef.current = new Array(NUMBER_OF_DAYS).fill(0)
-      nameInput.current.value = ''
+      inputRef.current.value = ''
       setDirty(false)
       if (!muted) brushPlay()
       dispatch({
@@ -256,6 +256,7 @@ const App = () => {
         />
         <Actions
           images={images}
+          generating={generating}
           selectedImage={selected}
           dirty={dirty}
           onSelect={onSelect}
@@ -264,7 +265,8 @@ const App = () => {
           onGenerate={onGenerate}
           onWipe={onWipe}
           onSave={onSave}
-          nameRef={nameInput}
+          nameRef={inputRef}
+          cellsRef={cellsRef}
         />
       </div>
       {generating && <Progress hide={hideVincent} onComplete={onProgressEnd} />}
