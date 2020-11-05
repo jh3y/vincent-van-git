@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react'
-import { MESSAGES, ACTIONS, MESSAGING_CONSTANTS } from '../../shared/constants'
+import { MESSAGES, ACTIONS, TOASTS } from '../../shared/constants'
 
 const APP_NAME = 'vincent-van-git'
 const DEFAULT_STATE = {
@@ -42,7 +42,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         ...state,
         muted: !state.muted,
         toast: {
-          type: MESSAGING_CONSTANTS.INFO,
+          type: TOASTS.INFO,
           message: `Audio ${!state.muted ? 'off' : 'on'}`,
         },
       }
@@ -59,7 +59,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         return {
           ...state,
           toast: {
-            type: MESSAGING_CONSTANTS.INFO,
+            type: TOASTS.INFO,
             message: MESSAGES.NO_CHANGE,
           },
           selected: JSON.stringify({
@@ -83,7 +83,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
             commits: JSON.stringify(action.commits),
           }),
           toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
+            type: TOASTS.SUCCESS,
             message: MESSAGES.UPDATED,
           },
         }
@@ -102,7 +102,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
             commits: JSON.stringify(action.commits),
           }),
           toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
+            type: TOASTS.SUCCESS,
             message: MESSAGES.UPDATED,
           },
         }
@@ -121,7 +121,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
             commits: JSON.stringify(action.commits),
           }),
           toast: {
-            type: MESSAGING_CONSTANTS.SUCCESS,
+            type: TOASTS.SUCCESS,
             message: MESSAGES.SAVED,
           },
         }
@@ -138,7 +138,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         images: state.images.filter((image) => image.name !== action.name),
         selected: '',
         toast: {
-          type: MESSAGING_CONSTANTS.SUCCESS,
+          type: TOASTS.SUCCESS,
           message: MESSAGES.DELETED,
         },
       }
@@ -148,7 +148,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         generating: !state.generating,
         ...(!action.silent && {
           toast: {
-            type: MESSAGING_CONSTANTS.INFO,
+            type: TOASTS.INFO,
             message: !state.generating
               ? MESSAGES.GENERATING
               : MESSAGES.DOWNLOADED,
@@ -167,7 +167,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         cleared: new Date().toUTCString(),
         selected: '',
         toast: {
-          type: MESSAGING_CONSTANTS.INFO,
+          type: TOASTS.INFO,
           message: MESSAGES.WIPED,
         },
       }
@@ -175,7 +175,7 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         toast: {
-          type: MESSAGING_CONSTANTS.INFO,
+          type: TOASTS.INFO,
           message: MESSAGES.SETTINGS,
         },
         username: action.username,

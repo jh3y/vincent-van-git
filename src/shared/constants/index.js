@@ -1,23 +1,23 @@
 const Mirror = (values) =>
   Object.freeze(values.reduce((keys, key) => ({ ...keys, [key]: key }), {}))
 
-const APP_CONSTANTS = {
-  WIDTH: 943,
-  HEIGHT: 360,
-}
+const README = `# Hello!
 
-const MESSAGING_CONSTANTS = {
-  ERROR: 'error',
-  INFO: 'info',
-  SUCCESS: 'success',
-  DELETE: 'VVG_DELETE',
-  PUSH: 'VVG_PUSH',
-  SAVE: 'VVG_SAVE',
-  GENERATE: 'VVG_GENERATE',
-  UPDATE: 'VVG_UPDATE',
-  UPDATED: 'VVG_UPDATED',
-  CONFIG: 'VVG_CONFIG',
-}
+Thank you for trying Vincent van Git.
+
+To paint to your Github contributions graph, run the \`vincent-van-git.sh\` file.
+
+__Happy painting!__
+
+-----
+
+jh3y 2020 MIT
+
+`
+
+const TOASTS = Mirror(['INFO', 'SUCCESS', 'ERROR'])
+
+const MESSAGING = Mirror(['DELETE', 'SAVE', 'GENERATE', 'UPDATE'])
 
 const ACTIONS = Mirror([
   'DELETE',
@@ -53,4 +53,4 @@ This takes some time. Be patient.`,
 export const SELECT_PLACEHOLDER = 'Select Configuration'
 export const INPUT_PLACEHOLDER = 'Configuration Name'
 
-export { APP_CONSTANTS, MESSAGING_CONSTANTS, MESSAGES, ACTIONS }
+export { MESSAGING, MESSAGES, ACTIONS, README, TOASTS }

@@ -1,7 +1,7 @@
 import T from 'prop-types'
 import React, { useEffect } from 'react'
 import Close from '../../assets/icons/close.svg'
-import { MESSAGING_CONSTANTS } from '../../constants'
+import { TOASTS } from '../../constants'
 import './toast.styl'
 
 const Toast = ({ created, message, type, onDismiss, autoDismiss }) => {
@@ -25,11 +25,7 @@ const Toast = ({ created, message, type, onDismiss, autoDismiss }) => {
 Toast.propTypes = {
   created: T.string,
   message: T.string,
-  type: T.oneOf([
-    MESSAGING_CONSTANTS.INFO,
-    MESSAGING_CONSTANTS.ERROR,
-    MESSAGING_CONSTANTS.SUCCESS,
-  ]),
+  type: T.oneOf([TOASTS.INFO, TOASTS.ERROR, TOASTS.SUCCESS]),
   onDismiss: T.func,
   autoDismiss: T.number,
 }

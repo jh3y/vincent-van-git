@@ -35,6 +35,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "gsap": "^3.4.0",
+    "jszip": "^3.5.0",
     "luxon": "^1.25.0",
     "node-fetch": "^2.3.0",
     "prop-types": "^15.7.2",
