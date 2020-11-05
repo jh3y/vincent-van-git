@@ -43,9 +43,9 @@ const MESSAGES = {
   LOADED: 'Configuration loaded!',
   CHECKING: 'Validating configuration',
   SETTINGS: 'Settings updated',
-  MAX: multi => `Max commits in a day: ${multi}`,
-  TOTAL: total => `Generating ${total} commits!`,
-  DISCARD: name => `Discard unsaved changes to load ${name}?`
+  MAX: (multi) => `Max commits in a day: ${multi}`,
+  TOTAL: (total) => `Generating ${total} commits!`,
+  DISCARD: (name) => `Discard unsaved changes to load ${name}?`,
 }
 
 export const SELECT_PLACEHOLDER = 'Select Configuration'

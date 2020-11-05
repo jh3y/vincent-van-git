@@ -5,12 +5,6 @@ import gsap from 'gsap'
 import Toast from '../toast'
 import './toasts.styl'
 
-const TYPES = {
-  ERROR: 'error',
-  SUCCESS: 'success',
-  INFO: 'info',
-}
-
 const DISMISS = 3000
 
 const Toasts = ({ toast: toastToAdd }) => {
