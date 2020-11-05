@@ -28,19 +28,23 @@ const Toasts = ({ toast: toastToAdd }) => {
   }
 
   useEffect(() => {
-    const createToast = (message, type) => {
+    const createToast = (message, type, life = DISMISS) => {
       const TOAST_TIME = DateTime.local().toISO({ includeOffset: true })
       const TOAST = {
         created: TOAST_TIME,
         type,
         message,
-        autoDismiss: type !== TYPES.ERROR ? DISMISS : 0,
+        autoDismiss: life,
         onDismiss: onDismiss(TOAST_TIME),
       }
       return TOAST
     }
     if (toastToAdd) {
-      const NEW_TOAST = createToast(toastToAdd.message, toastToAdd.type)
+      const NEW_TOAST = createToast(
+        toastToAdd.message,
+        toastToAdd.type,
+        toastToAdd.life
+      )
       setToast(NEW_TOAST)
     }
   }, [toastToAdd])
@@ -51,7 +55,6 @@ const Toasts = ({ toast: toastToAdd }) => {
       toasts.filter((t) => t.created === toast.created).length === 0
     ) {
       // Adds toasts into pile
-      // setToast(null)
       setToasts([...toasts, toast])
     }
   }, [toast, toasts])

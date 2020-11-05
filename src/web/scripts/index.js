@@ -121,9 +121,11 @@ const App = () => {
 
   const onGenerate = async () => {
     if (!muted) clickPlay()
-    dispatch({
-      type: ACTIONS.GENERATE,
-    })
+    if (confirm(MESSAGES.CONFIRM_DOWNLOAD)) {
+      dispatch({
+        type: ACTIONS.GENERATE,
+      })
+    }
   }
 
   const onSave = () => {
@@ -140,6 +142,14 @@ const App = () => {
   useEffect(() => {
     const getMultiplier = async () => {
       try {
+        dispatch({
+          type: ACTIONS.TOASTING,
+          toast: {
+            type: TOASTS.INFO,
+            message: MESSAGES.CHECKING,
+            life: 2000,
+          }
+        })
         const resp = await fetch(
           `${URL}?username=${username}&repository=${repository}&branch=${branch}`
         )
@@ -151,19 +161,21 @@ const App = () => {
             toast: {
               type: TOASTS.ERROR,
               message: ERROR.message,
+              life: 0,
             },
           })
           setHideVincent(true)
         } else {
+          const multiplier = await (await resp.json()).multiplier
+          dispatch({
+            type: ACTIONS.TOASTING,
+            toast: {
+              type: TOASTS.INFO,
+              message: MESSAGES.MAX(multiplier),
+              life: 2000,
+            },
+          })
           setTimeout(async () => {
-            const multiplier = await (await resp.json()).multiplier
-            dispatch({
-              type: ACTIONS.TOASTING,
-              toast: {
-                type: TOASTS.INFO,
-                message: `Max commits ${multiplier}`,
-              },
-            })
             const SCRIPT = await generateShellScript(
               cellsRef.current,
               username,
@@ -184,6 +196,7 @@ const App = () => {
           toast: {
             type: TOASTS.ERROR,
             message: err.message,
+            life: 0,
           },
         })
         setHideVincent(true)
