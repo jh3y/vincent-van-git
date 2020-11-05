@@ -5,7 +5,11 @@ import Delete from '../../assets/icons/delete.svg'
 import Download from '../../assets/icons/download.svg'
 import Erase from '../../assets/icons/eraser-variant.svg'
 import Rocket from '../../assets/icons/rocket.svg'
-import { SELECT_PLACEHOLDER, INPUT_PLACEHOLDER, MESSAGES } from '../../constants'
+import {
+  SELECT_PLACEHOLDER,
+  INPUT_PLACEHOLDER,
+  MESSAGES,
+} from '../../constants'
 import './actions.styl'
 
 const Actions = ({
@@ -34,7 +38,7 @@ const Actions = ({
       (selectedImage !== '' &&
         JSON.parse(selectedImage).commits !== JSON.stringify(cellsRef.current))
     ) {
-      if (confirm(MESSAGES.DISCARD(JSON.parse(e.target.value).name))) {
+      if (window.confirm(MESSAGES.DISCARD(JSON.parse(e.target.value).name))) {
         setSelected(e.target.value)
         if (onSelect) onSelect(e)
       }
@@ -143,6 +147,12 @@ Actions.propTypes = {
   images: T.array,
   selectedImage: T.string, // Stringified Object!
   nameRef: T.oneOfType([
+    // Either a function
+    T.func,
+    // Or the instance of a DOM native element (see the note about SSR)
+    T.shape({ current: T.instanceOf(Element) }),
+  ]),
+  cellsRef: T.oneOfType([
     // Either a function
     T.func,
     // Or the instance of a DOM native element (see the note about SSR)

@@ -121,7 +121,7 @@ const App = () => {
 
   const onGenerate = async () => {
     if (!muted) clickPlay()
-    if (confirm(MESSAGES.CONFIRM_DOWNLOAD)) {
+    if (window.confirm(MESSAGES.CONFIRM_DOWNLOAD)) {
       dispatch({
         type: ACTIONS.GENERATE,
       })
@@ -148,7 +148,7 @@ const App = () => {
             type: TOASTS.INFO,
             message: MESSAGES.CHECKING,
             life: 2000,
-          }
+          },
         })
         const resp = await fetch(
           `${URL}?username=${username}&repository=${repository}&branch=${branch}`
