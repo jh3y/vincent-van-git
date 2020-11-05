@@ -48,6 +48,7 @@ This takes some time. Be patient.`,
   CHECKING: 'Validating configuration',
   SETTINGS: 'Settings updated',
   GIT: 'Git not installed',
+  DISCARD: name => `Discard unsaved changes to load ${name}`
 }
 
 export const SELECT_PLACEHOLDER = 'Select Configuration'

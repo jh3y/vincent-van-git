@@ -160,6 +160,12 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         ...state,
         selected: action.selected,
         cleared: new Date().toUTCString(),
+        ...(action.selected !== '' && {
+          toast: {
+            type: TOASTS.INFO,
+            message: MESSAGES.LOADED,
+          },
+        }),
       }
     case ACTIONS.WIPE:
       return {
