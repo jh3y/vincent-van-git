@@ -312,23 +312,25 @@ const App = () => {
     const CHOOSE = document.createElement('input')
     CHOOSE.type = 'file'
     CHOOSE.setAttribute('accept', '.json')
-    const importFile = (e) => {
-      const FILE_NAME = CHOOSE.value.substr(CHOOSE.value.lastIndexOf('\\') + 1)
-      CHOOSE.remove()
-      if (FILE_NAME === 'vincent-van-git.config.json') {
-        importFile(e.target.files[0])
-      } else {
-        dispatch({
-          type: ACTIONS.TOASTING,
-          toast: {
-            type: TOASTS.ERROR,
-            message: MESSAGES.JSON,
-            life: 0,
-          },
-        })
+    const handleFileSelect = (e) => {
+      if (e.target) {
+        const FILE = e.target.files[0]
+        if (FILE.name === 'vincent-van-git.config.json') {
+          importFile(FILE)
+        } else {
+          dispatch({
+            type: ACTIONS.TOASTING,
+            toast: {
+              type: TOASTS.ERROR,
+              message: MESSAGES.JSON,
+              life: 0,
+            },
+          })
+        }
+        CHOOSE.remove()
       }
     }
-    CHOOSE.addEventListener('input', importFile)
+    CHOOSE.addEventListener('input', handleFileSelect)
     CHOOSE.click()
   }
 
