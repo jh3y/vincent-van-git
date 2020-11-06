@@ -22,7 +22,6 @@ import TRUMPET_PATH from '../../shared/assets/audio/trumpet-fanfare.mp3'
 import BRUSH_PATH from '../../shared/assets/audio/brush-stroke.mp3'
 
 import 'regenerator-runtime/runtime'
-import '../styles/index.styl'
 import '../../shared/styles/shared.styl'
 import { usePersistentReducer, APP_REDUCER } from './reducer'
 
@@ -95,7 +94,6 @@ const App = () => {
 
   const onSelect = (e) => {
     // This one is to keep the select in sync. Set selected in the dispatch
-    // setImage(e.target.value)
     if (e.target.value === SELECT_PLACEHOLDER) {
       inputRef.current.value = ''
       return dispatch({
@@ -129,8 +127,6 @@ const App = () => {
   }
 
   const onSave = () => {
-    // Probably better here to grab the ref value??
-    // And then set it via props if we can?
     if (!muted) clickPlay()
     dispatch({
       type: ACTIONS.SAVE,

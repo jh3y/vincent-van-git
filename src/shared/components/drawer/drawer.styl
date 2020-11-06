@@ -1,12 +1,16 @@
 // Related to sliding the body when the drawer opens.
+:root {
+  --drawer-width: 260;
+}
+
 body {
-  transform: translate(calc((var(--left, 0) * 220) * 1px), 0) translate(calc((var(--right, 0) * 220) * -1px), 0);
+  transform: translate(calc((var(--left, 0) * var(--drawer-width)) * 1px), 0) translate(calc((var(--right, 0) * var(--drawer-width)) * -1px), 0);
   transition: transform 0.25s;
 }
 
 .sliding-drawer__toggle {
   position: absolute;
-  top: 0;
+  top: var(--padding);
 }
 
 .sliding-drawer__title {
@@ -17,7 +21,7 @@ body {
 .sliding-drawer {
   position: fixed;
   top: 0;
-  width: 220px;
+  width: calc(var(--drawer-width) * 1px);
   height: 100vh;
   background: var(--grey);
   box-shadow: 4px 0 20px -10px hsl(0, 0%, 10%) inset;
@@ -44,12 +48,12 @@ body {
 }
 
 .sliding-drawer__toggle--right {
-  right: 100%;
+  right: calc(100% + var(--padding));
 }
 .sliding-drawer--left {
   right: 100%;
 }
 
 .sliding-drawer__toggle--left {
-  left: 100%;
+  left: calc(100% + var(--padding));
 }
