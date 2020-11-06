@@ -40,7 +40,9 @@ const SettingsDrawer = (props) => {
           <label htmlFor="branch">Branch</label>
           <input id="branch" required name="branch" ref={register()} />
         </div>
-        <button type="submit">Save</button>
+        <button className="submit-button" type="submit">
+          Save
+        </button>
       </form>
     </Drawer>
   )

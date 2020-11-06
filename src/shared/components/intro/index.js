@@ -1,15 +1,23 @@
 import T from 'prop-types'
-import React, { Fragment } from 'react'
-import Information from '../../assets/icons/information-outline.svg'
+import React from 'react'
+import Close from '../../assets/icons/close.svg'
 import Logo from '../../assets/icons/logo64.png'
+import './intro.styl'
 
-import Drawer from '../drawer'
-const InfoDrawer = ({ footer: Footer }) => {
+const Intro = ({ onDismiss }) => {
   return (
-    <Drawer title="Instructions" icon={Information} left={false}>
-      <Fragment>
-        <section className="instructions-content">
-          <ul>
+    <div className="intro__backdrop" aria-hidden="true">
+      <div
+        className="intro"
+        role="dialog"
+        aria-labelledby="introTitle"
+        aria-describedby="introDesc">
+        <img className="intro__image" src={Logo} alt="Vincent van Git" />
+        <h2 id="introTitle">Howdy!</h2>
+        <div id="introDesc">
+          Thank you for checking out &quot;Vincent van Git&quot;.
+          <p>How to use it:</p>
+          <ol>
             <li>
               Enter your Github username, repository, and branch in the
               &quot;Settings&quot; panel (Top left). Make sure the repository is
@@ -31,22 +39,24 @@ const InfoDrawer = ({ footer: Footer }) => {
               been pushed.
             </li>
             <li>After a few minutes the image will appear on your profile!</li>
-          </ul>
-          <hr />
-          <img src={Logo} alt="Vincent van Git" />
-          <p>
-            Built by <a href="https://twitter.com/jh3yy">jh3yy</a>. &copy; 2020
-            MIT.
-          </p>
-        </section>
-        {Footer && <Footer />}
-      </Fragment>
-    </Drawer>
+          </ol>
+        </div>
+        <button
+          className="intro__close icon-button"
+          onClick={onDismiss}
+          title="Dismiss">
+          <Close />
+        </button>
+        <button className="submit-button" onClick={onDismiss}>
+          Get painting!
+        </button>
+      </div>
+    </div>
   )
 }
 
-InfoDrawer.propTypes = {
-  footer: T.func,
+Intro.propTypes = {
+  onDismiss: T.func,
 }
 
-export default InfoDrawer
+export default Intro

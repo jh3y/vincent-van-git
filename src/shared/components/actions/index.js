@@ -74,7 +74,7 @@ const Actions = ({
       )}
       {onWipe && (
         <button
-          disabled={disabled || !dirty}
+          disabled={!dirty}
           className="icon-button"
           onClick={onWipe}
           title="Wipe Grid">
@@ -130,6 +130,12 @@ const Actions = ({
       </div>
     </div>
   )
+}
+
+Actions.defaultProps = {
+  selectedImage: '',
+  onGenerate: () => {},
+  onWipe: () => {},
 }
 
 Actions.propTypes = {
