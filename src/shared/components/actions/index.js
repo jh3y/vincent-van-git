@@ -2,6 +2,8 @@ import T from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import Save from '../../assets/icons/content-save.svg'
 import Delete from '../../assets/icons/delete.svg'
+import Import from '../../assets/icons/import.svg'
+import Export from '../../assets/icons/export.svg'
 import Download from '../../assets/icons/download.svg'
 import Erase from '../../assets/icons/eraser-variant.svg'
 import Rocket from '../../assets/icons/rocket.svg'
@@ -26,6 +28,8 @@ const Actions = ({
   selectedImage,
   nameRef,
   cellsRef,
+  onImport,
+  onExport,
 }) => {
   const [name, setName] = useState(
     selectedImage.trim() === '' ? '' : JSON.parse(selectedImage).name
@@ -81,6 +85,22 @@ const Actions = ({
           <Erase />
         </button>
       )}
+      <div className="io-container">
+        <button
+          disabled={generating}
+          className="icon-button"
+          title="Import"
+          onClick={onImport}>
+          <Import />
+        </button>
+        <button
+          disabled={generating || !images || (images && images.length === 0)}
+          className="icon-button"
+          title="Import"
+          onClick={onExport}>
+          <Export />
+        </button>
+      </div>
       {images && images.length > 0 && (
         <div className="select-wrapper">
           <select disabled={generating} onChange={onChange} value={selected}>
@@ -107,12 +127,12 @@ const Actions = ({
         <input
           type="text"
           ref={nameRef}
-          disabled={disabled}
+          disabled={!dirty || generating}
           placeholder={INPUT_PLACEHOLDER}
           onChange={(e) => setName(e.target.value)}
         />
         <button
-          disabled={name.trim() === '' || disabled}
+          disabled={name.trim() === '' || generating}
           className="icon-button"
           onClick={onSave}
           title="Save image configuration">
@@ -120,7 +140,7 @@ const Actions = ({
         </button>
         {selected !== '' && (
           <button
-            disabled={disabled}
+            disabled={generating || !selected}
             className="icon-button"
             onClick={onDelete}
             title="Delete Image Configuration">
@@ -149,6 +169,8 @@ Actions.propTypes = {
   onSave: T.func,
   onUpdate: T.func,
   onDelete: T.func,
+  onImport: T.func,
+  onExport: T.func,
   imageName: T.string,
   images: T.array,
   selectedImage: T.string, // Stringified Object!

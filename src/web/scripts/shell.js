@@ -1,6 +1,5 @@
-import { ACTIONS, README, TOASTS, MESSAGES } from '../../shared/constants'
+import { ACTIONS, TOASTS, MESSAGES } from '../../shared/constants'
 import { DateTime } from 'luxon'
-import zip from 'jszip'
 import 'regenerator-runtime/runtime'
 
 const processCommits = async (commits, multiplier, onCommit, dispatch) => {
@@ -37,16 +36,12 @@ const processCommits = async (commits, multiplier, onCommit, dispatch) => {
   }
 }
 
-const downloadFile = async (content) => {
+const downloadFile = async (content, name) => {
   if (window.URL.createObjectURL) {
-    const FILE = new zip()
-    FILE.file('vincent-van-git.sh', content)
-    FILE.file('README.md', README)
-    const ZIP_FILE = await FILE.generateAsync({ type: 'blob' })
-    const FILE_URL = window.URL.createObjectURL(ZIP_FILE)
+    const FILE_URL = window.URL.createObjectURL(content)
     const link = document.createElement('a')
     link.href = FILE_URL
-    link.download = 'vincent.zip'
+    link.download = name
     document.body.appendChild(link)
     link.click()
     window.URL.revokeObjectURL(FILE_URL)
