@@ -1,5 +1,12 @@
-import React, { useEffect, useState, useRef, Fragment } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  Fragment,
+} from 'react'
 import { render } from 'react-dom'
+import zip from 'jszip'
 import CommitGrid from '../../shared/components/commit-grid'
 import InfoDrawer from '../../shared/components/info-drawer'
 import SettingsDrawer from '../../shared/components/settings-drawer'
@@ -15,7 +22,9 @@ import {
   ACTIONS,
   SELECT_PLACEHOLDER,
   TOASTS,
+  README,
 } from '../../shared/constants'
+
 import { downloadFile, generateShellScript } from './shell'
 import CLICK_PATH from '../../shared/assets/audio/click.mp3'
 import SPARKLE_PATH from '../../shared/assets/audio/sparkle.mp3'
@@ -183,7 +192,11 @@ const App = () => {
               REPO_PATH,
               dispatch
             )
-            downloadFile(SCRIPT)
+            const FILE = new zip()
+            FILE.file('vincent-van-git.sh', SCRIPT)
+            FILE.file('README.md', README)
+            const ZIP_FILE = await FILE.generateAsync({ type: 'blob' })
+            downloadFile(ZIP_FILE, 'vincent-van-git.zip')
             setHideVincent(true)
           }, 5000)
         }
@@ -235,6 +248,7 @@ const App = () => {
   }
 
   const onDismiss = () => {
+    if (!muted) clickPlay()
     dispatch({
       type: ACTIONS.DISMISS,
     })
@@ -252,6 +266,104 @@ const App = () => {
       })
     }
   }
+
+  const importFile = useCallback(
+    (content) => {
+      const READER = new FileReader()
+      READER.onload = (e) => {
+        // Loop over the import.
+        // If the name doesn't exist, import it.
+        // If the name exists and the value differs from what exists, import with a different name.
+        const NEW_IMAGES = []
+        const IMPORTS = JSON.parse(e.target.result)
+        for (const importImage of IMPORTS) {
+          const EXISTS_BY_NAME =
+            images.filter((image) => image.name === importImage.name).length > 0
+          const EXISTS_BY_VALUE =
+            images.filter((image) => image.commits === importImage.commits)
+              .length > 0
+          if (EXISTS_BY_NAME && !EXISTS_BY_VALUE) {
+            NEW_IMAGES.push({
+              name: `${importImage.name} (Imported)`,
+              commits: importImage.commits,
+            })
+          } else if (!EXISTS_BY_NAME && !EXISTS_BY_VALUE) {
+            // Import it
+            NEW_IMAGES.push({
+              name: importImage.name,
+              commits: importImage.commits,
+            })
+          }
+        }
+        dispatch({
+          type: ACTIONS.IMPORT,
+          imports: NEW_IMAGES,
+        })
+        if (!muted && NEW_IMAGES.length > 0) sparklePlay()
+      }
+      READER.readAsText(content)
+    },
+    [images, dispatch, muted, sparklePlay]
+  )
+
+  const onImport = () => {
+    if (!muted) clickPlay()
+    // Import is a little trickier. Need to read a file and then translate its content into new state variables.
+    const CHOOSE = document.createElement('input')
+    CHOOSE.type = 'file'
+    CHOOSE.setAttribute('accept', '.json')
+    const importFile = (e) => {
+      const FILE_NAME = CHOOSE.value.substr(CHOOSE.value.lastIndexOf('\\') + 1)
+      CHOOSE.remove()
+      if (FILE_NAME === 'vincent-van-git.config.json') {
+        importFile(e.target.files[0])
+      } else {
+        dispatch({
+          type: ACTIONS.TOASTING,
+          toast: {
+            type: TOASTS.ERROR,
+            message: MESSAGES.JSON,
+            life: 0,
+          },
+        })
+      }
+    }
+    CHOOSE.addEventListener('input', importFile)
+    CHOOSE.click()
+  }
+
+  const onExport = () => {
+    if (!muted) clickPlay()
+    const FILE = new Blob([JSON.stringify(images)], {
+      type: 'application/json',
+    })
+    downloadFile(FILE, 'vincent-van-git.config.json')
+    dispatch({
+      type: ACTIONS.TOASTING,
+      toast: {
+        type: TOASTS.SUCCESS,
+        message: MESSAGES.EXPORTED,
+        life: 2000,
+      },
+    })
+  }
+
+  useEffect(() => {
+    const moot = (e) => e.preventDefault()
+    const onFileDrop = (e) => {
+      e.preventDefault()
+      const file = e.dataTransfer.files[0]
+      if (file.name === 'vincent-van-git.config.json') importFile(file)
+    }
+    // Don't do anything on drag over
+    document.body.addEventListener('dragover', moot)
+    document.body.addEventListener('drop', onFileDrop)
+    return () => {
+      document.body.removeEventListener('dragover', moot)
+      document.body.removeEventListener('drop', onFileDrop)
+    }
+  }, [importFile])
+
   const disabled =
     generating || !dirty || (dirty && !(username || repository || branch))
 
@@ -276,6 +388,8 @@ const App = () => {
           images={images}
           generating={generating}
           selectedImage={selected}
+          onImport={onImport}
+          onExport={onExport}
           dirty={dirty}
           onSelect={onSelect}
           disabled={disabled}

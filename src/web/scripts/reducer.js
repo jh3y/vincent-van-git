@@ -143,6 +143,19 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
           message: MESSAGES.DELETED,
         },
       }
+    case ACTIONS.IMPORT:
+      return {
+        ...state,
+        images: [...state.images, ...action.imports],
+        toast: {
+          life: 4000,
+          type: action.imports.length > 0 ? TOASTS.SUCCESS : TOASTS.INFO,
+          message:
+            action.imports.length > 0
+              ? MESSAGES.IMPORTED(action.imports.length)
+              : MESSAGES.NO_IMPORT,
+        },
+      }
     case ACTIONS.DISMISS:
       return {
         ...state,

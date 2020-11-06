@@ -28,6 +28,7 @@ const ACTIONS = Mirror([
   'WIPE',
   'TOASTING',
   'DISMISS',
+  'IMPORT',
 ])
 
 const MESSAGES = {
@@ -48,6 +49,10 @@ const MESSAGES = {
   MAX: (multi) => `Max commits in a day: ${multi}`,
   TOTAL: (total) => `Generating ${total} commits!`,
   DISCARD: (name) => `Discard unsaved changes to load ${name}?`,
+  EXPORTED: 'Exported images!',
+  IMPORTED: (number) => `${number} Image${number > 1 ? 's' : ''} imported!`,
+  NO_IMPORT: 'Nothing to import!',
+  JSON: 'Import file must be named "vincent-van-git.config.json"',
 }
 
 export const SELECT_PLACEHOLDER = 'Select Configuration'
