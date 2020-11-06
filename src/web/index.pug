@@ -1,20 +1,19 @@
 doctype html
 html(lang='')
   head
-    //- link(rel="shortcut icon" href="/public/favicon.ico")
-    //- link(rel="apple-touch-icon" href="/public/logo192.png")
-    //- link(rel="manifest" href="/manifest.webmanifest")
+    link(rel="shortcut icon" href="../shared/assets/icons/favicon.ico")
+    link(rel="apple-touch-icon" href="../shared/assets/icons/logo192.png")
+    link(rel="manifest" href="/manifest.webmanifest")
     include ../shared/markup/header.pug
-    link(rel="stylesheet" href='/styles/index.styl')
     title Vincent van Git 🎨
   body
     #app
     script(src='/scripts/index.js')
-    //- script.
-    //-   if('serviceWorker' in navigator) {
-    //-     //- Parcel workaround
-    //-     const path = 'sw.js'
-    //-     navigator.serviceWorker
-    //-             .register(path)
-    //-             .then(function() { console.log("Service Worker Registered"); });
-    //-   }
+    script.
+      if('serviceWorker' in navigator) {
+        //- Parcel workaround
+        const path = 'sw.js'
+        navigator.serviceWorker
+                .register(path)
+                .then(function() { console.log("Service Worker Registered"); });
+      }

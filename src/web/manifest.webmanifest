@@ -3,17 +3,17 @@
   "name": "Vincent van Git",
   "icons": [
     {
-      "src": "public/favicon.ico",
+      "src": "../shared/assets/icons/favicon.ico",
       "type": "image/x-icon",
       "sizes": "64x64 32x32 24x24 16x16"
     },
     {
-      "src": "public/logo192.png",
+      "src": "../shared/assets/icons/logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "public/logo512.png",
+      "src": "../shared/assets/icons/logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

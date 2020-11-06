@@ -21,7 +21,7 @@ Vincent van Git is an app for using your Github contributions graph as a canvas.
 __Note::__ Avoid generating the script if your profile already has a drawing on it. Delete that repository first. If you don't you'll generate many thousands of commits and it can take some time to run that script. Also, the image might not come out how you expect.
 
 ## Why?
-This is a project I've wanted to build for some time but wasn't sure how to go about it. I used [gitfiti]() for a long time to draw onto my graph. The issue for me? There was no GUI. Creating new images was a process of mapping an Array of nested Array. I could've created a tool to generate that Array for me. But, if I'm going that far, I may as well see if I can build the whole thing. That tool also relied on you entering information into the CLI each time. I wanted to create something accessible that would make it easy for me to create new images.
+This is a project I've wanted to build for some time but wasn't sure how to go about it. I used [gitfiti](https://github.com/gelstudios/gitfiti) for a long time to draw onto my graph. The issue for me? There was no GUI. Creating new images was a process of mapping an Array of nested Array. I could've created a tool to generate that Array for me. But, if I'm going that far, I may as well see if I can build the whole thing. That tool also relied on you entering information into the CLI each time. I wanted to create something accessible that would make it easy for me to create new images.
 
 To summarize, I built a tool to solve a problem for me. And you might enjoy using it too!
 
