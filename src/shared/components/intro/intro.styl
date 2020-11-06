@@ -1,0 +1,49 @@
+.intro {
+  background: var(--grey);
+  box-shadow: 0px 10px 10px -10px hsla(0, 0%, 10%, 0.5), 0 0 50px -25px hsla(0, 0%, 10%, 0.5);
+  max-width: 600px;
+  padding: var(--padding);
+  border-radius: 6px;
+  position: relative;
+
+  & > * + * {
+    margin-top: var(--padding);
+  }
+
+  li {
+    margin-top: var(--padding);
+  }
+
+  &__image {
+    margin: 0 auto;
+    display: block;
+  }
+
+  &__backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: hsla(0, 0%, 10%, 0.25);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    padding: var(--padding);
+    z-index: 5;
+    overflow: auto;
+
+    @media(max-height: 600px) {
+      align-items: start;
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: var(--padding);
+    right: var(--padding);
+    height: 44px;
+    width: 44px;
+  }
+}

@@ -6,6 +6,7 @@ import SettingsDrawer from '../../shared/components/settings-drawer'
 import Actions from '../../shared/components/actions'
 import Progress from '../../shared/components/progress'
 import Toasts from '../../shared/components/toasts'
+import Intro from '../../shared/components/intro'
 import AudioToggle from '../../shared/components/audio-toggle'
 import useSound from '../../shared/hooks/useSound'
 
@@ -41,6 +42,7 @@ const App = () => {
       images,
       generating,
       selected,
+      showIntro,
     },
     dispatch,
   ] = usePersistentReducer(APP_REDUCER, undefined, ['toast'])
@@ -232,6 +234,12 @@ const App = () => {
     setDirty(cellsRef.current.filter((cell) => cell !== 0).length > 0)
   }
 
+  const onDismiss = () => {
+    dispatch({
+      type: ACTIONS.DISMISS,
+    })
+  }
+
   const onWipe = () => {
     if (!muted) clickPlay()
     if (window.confirm(MESSAGES.CONFIRM_WIPE)) {
@@ -249,6 +257,7 @@ const App = () => {
 
   return (
     <Fragment>
+      {showIntro && <Intro onDismiss={onDismiss} />}
       <SettingsDrawer
         username={username}
         repository={repository}

@@ -27,6 +27,7 @@ const ACTIONS = Mirror([
   'LOAD',
   'WIPE',
   'TOASTING',
+  'DISMISS',
 ])
 
 const MESSAGES = {
@@ -36,6 +37,7 @@ const MESSAGES = {
   DELETED: 'Configuration deleted!',
   WIPED: 'Grid wiped!',
   CONFIRM_WIPE: 'Wipe grid?',
+  HAPPY: 'Happy Painting!',
   CONFIRM_DOWNLOAD: 'Download Shell Script?',
   CONFIRM_DELETE: (name) => `Delete configuration${name ? ` ${name}` : ''}?`,
   DOWNLOADED: 'Shell script downloaded!',

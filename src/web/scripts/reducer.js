@@ -4,6 +4,7 @@ import { MESSAGES, ACTIONS, TOASTS } from '../../shared/constants'
 const APP_NAME = 'vincent-van-git'
 const DEFAULT_STATE = {
   muted: false,
+  showIntro: true,
   images: [],
   username: null,
   repository: null,
@@ -140,6 +141,16 @@ const APP_REDUCER = (state = INITIAL_STATE, action) => {
         toast: {
           type: TOASTS.SUCCESS,
           message: MESSAGES.DELETED,
+        },
+      }
+    case ACTIONS.DISMISS:
+      return {
+        ...state,
+        showIntro: false,
+        toast: {
+          type: TOASTS.SUCCESS,
+          life: 2000,
+          message: MESSAGES.HAPPY,
         },
       }
     case ACTIONS.GENERATE:

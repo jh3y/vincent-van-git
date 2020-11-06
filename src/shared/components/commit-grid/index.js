@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { MonoSynth } from 'tone/build/tone'
+import { MonoSynth } from 'tone/build/Tone'
 import BRUSH_PATH from '../../assets/images/brush.png'
 import './commit-grid.styl'
 
