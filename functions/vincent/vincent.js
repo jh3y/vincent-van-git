@@ -21,11 +21,11 @@ const validateConfig = async (username, repository, branch) => {
   const userRequest = await fetch(`https://github.com/${username}`)
   if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME(username))
   // Check for the repository
-  const repoRequest = await fetch(`https://github.com/jh3y/${repository}`)
+  const repoRequest = await fetch(`https://github.com/${username}/${repository}`)
   if (repoRequest.status !== 200) throw Error(MESSAGES.REPO(username, repository))
   // Check for the repository branch
   const branchRequest = await fetch(
-    `https://github.com/jh3y/${repository}/tree/${branch}`
+    `https://github.com/${username}/${repository}/tree/${branch}`
   )
   if (branchRequest.status !== 200) throw Error(MESSAGES.BRANCH(branch, repository, username))
   const IS_EMPTY = await isEmptyRepo(username, repository)
