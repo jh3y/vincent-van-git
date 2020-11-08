@@ -96,7 +96,7 @@ const Actions = ({
         <button
           disabled={generating || !images || (images && images.length === 0)}
           className="icon-button"
-          title="Import"
+          title="Export"
           onClick={onExport}>
           <Export />
         </button>
