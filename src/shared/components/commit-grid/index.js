@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { MonoSynth } from 'tone/build/Tone'
 import BRUSH_PATH from '../../assets/images/brush.png'
 import './commit-grid.styl'
@@ -19,6 +19,59 @@ export default function CommitGrid({
   const synthRef = useRef(null)
 
   const playNote = (index, level) => {
+    if (!synthRef.current) {
+      synthRef.current = new MonoSynth({
+        volume: -8,
+        detune: 0,
+        portamento: 0,
+        envelope: {
+          attack: 0.05,
+          attackCurve: 'linear',
+          decay: 0.3,
+          decayCurve: 'exponential',
+          release: 0.8,
+          releaseCurve: 'exponential',
+          sustain: 0.4,
+        },
+        filter: {
+          Q: 1,
+          detune: 0,
+          frequency: 0,
+          gain: 0,
+          rolloff: -12,
+          type: 'lowpass',
+        },
+        filterEnvelope: {
+          attack: 0.001,
+          attackCurve: 'linear',
+          decay: 0.7,
+          decayCurve: 'exponential',
+          release: 0.8,
+          releaseCurve: 'exponential',
+          sustain: 0.1,
+          baseFrequency: 300,
+          exponent: 2,
+          octaves: 4,
+        },
+        oscillator: {
+          detune: 0,
+          frequency: 440,
+          partialCount: 8,
+          partials: [
+            1.2732395447351628,
+            0,
+            0.4244131815783876,
+            0,
+            0.25464790894703254,
+            0,
+            0.18189136353359467,
+            0,
+          ],
+          phase: 0,
+          type: 'square8',
+        },
+      }).toDestination()
+    }
     synthRef.current.triggerAttackRelease(
       `${NOTES[index]}${PITCH[level - 1]}`,
       '32n'
@@ -80,60 +133,6 @@ export default function CommitGrid({
     e.preventDefault()
     return false
   }
-
-  useEffect(() => {
-    synthRef.current = new MonoSynth({
-      volume: -8,
-      detune: 0,
-      portamento: 0,
-      envelope: {
-        attack: 0.05,
-        attackCurve: 'linear',
-        decay: 0.3,
-        decayCurve: 'exponential',
-        release: 0.8,
-        releaseCurve: 'exponential',
-        sustain: 0.4,
-      },
-      filter: {
-        Q: 1,
-        detune: 0,
-        frequency: 0,
-        gain: 0,
-        rolloff: -12,
-        type: 'lowpass',
-      },
-      filterEnvelope: {
-        attack: 0.001,
-        attackCurve: 'linear',
-        decay: 0.7,
-        decayCurve: 'exponential',
-        release: 0.8,
-        releaseCurve: 'exponential',
-        sustain: 0.1,
-        baseFrequency: 300,
-        exponent: 2,
-        octaves: 4,
-      },
-      oscillator: {
-        detune: 0,
-        frequency: 440,
-        partialCount: 8,
-        partials: [
-          1.2732395447351628,
-          0,
-          0.4244131815783876,
-          0,
-          0.25464790894703254,
-          0,
-          0.18189136353359467,
-          0,
-        ],
-        phase: 0,
-        type: 'square8',
-      },
-    }).toDestination()
-  }, [])
 
   if (!cells.length) return null
 
