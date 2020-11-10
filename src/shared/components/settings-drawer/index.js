@@ -26,6 +26,7 @@ const SettingsDrawer = (props) => {
       close={close}
       onClose={() => setClose(false)}
       left={true}
+      muted={props.muted}
       icon={Cog}>
       <form className="sliding-drawer__form" onSubmit={handleSubmit(preSubmit)}>
         <div className="sliding-drawer__form-field">
@@ -52,6 +53,7 @@ SettingsDrawer.defaultProps = {
 }
 SettingsDrawer.propTypes = {
   onSubmit: T.func,
+  muted: T.bool,
 }
 
 export default SettingsDrawer

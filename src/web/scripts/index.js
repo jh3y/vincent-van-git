@@ -376,9 +376,10 @@ const App = () => {
         username={username}
         repository={repository}
         branch={branch}
+        muted={muted}
         onSubmit={onSettingsUpdate}
       />
-      <InfoDrawer />
+      <InfoDrawer muted={muted} />
       <div className="canvas">
         <CommitGrid
           key={cleared}
@@ -404,7 +405,7 @@ const App = () => {
         />
       </div>
       {generating && <Progress hide={hideVincent} onComplete={onProgressEnd} />}
-      <AudioToggle onToggle={toggleAudio} />
+      <AudioToggle onToggle={toggleAudio} muted={muted} />
       <Toasts toast={toast} />
     </Fragment>
   )

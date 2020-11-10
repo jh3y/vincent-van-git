@@ -4,9 +4,9 @@ import Information from '../../assets/icons/information-outline.svg'
 import Logo from '../../assets/icons/logo64.png'
 
 import Drawer from '../drawer'
-const InfoDrawer = ({ footer: Footer }) => {
+const InfoDrawer = ({ footer: Footer, muted }) => {
   return (
-    <Drawer title="Instructions" icon={Information} left={false}>
+    <Drawer title="Instructions" icon={Information} left={false} muted={muted}>
       <Fragment>
         <section className="instructions-content">
           <ul>
@@ -47,6 +47,7 @@ const InfoDrawer = ({ footer: Footer }) => {
 
 InfoDrawer.propTypes = {
   footer: T.func,
+  muted: T.bool,
 }
 
 export default InfoDrawer
