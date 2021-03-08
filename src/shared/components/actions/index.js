@@ -101,29 +101,29 @@ const Actions = ({
           <Export />
         </button>
       </div>
-      {images && images.length > 0 && (
-        <div className="select-wrapper">
-          <select disabled={generating} onChange={onChange} value={selected}>
-            <option>{SELECT_PLACEHOLDER}</option>
-            {images.map(({ name, commits }, index) => (
-              <option
-                value={JSON.stringify({
-                  name,
-                  commits,
-                })}
-                key={index}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
       <div
         className="configuration-container"
         style={{
           '--scale': dirty ? 1 : 0,
           visibility: dirty ? 'visible' : 'hidden',
         }}>
+        {images && images.length > 0 && (
+          <div className="select-wrapper">
+            <select disabled={generating} onChange={onChange} value={selected}>
+              <option>{SELECT_PLACEHOLDER}</option>
+              {images.map(({ name, commits }, index) => (
+                <option
+                  value={JSON.stringify({
+                    name,
+                    commits,
+                  })}
+                  key={index}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <input
           type="text"
           ref={nameRef}
