@@ -11,7 +11,7 @@ const InfoDrawer = ({ footer: Footer, muted }) => {
         <section className="instructions-content">
           <ul>
             <li>
-              Enter your Github username, repository, and branch in the
+              Enter your GitHub username, repository, and branch in the
               &quot;Settings&quot; panel (Top left). Make sure the repository is
               empty. The branch should be set to what you use locally. For
               example, `main`.

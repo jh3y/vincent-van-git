@@ -2,7 +2,7 @@
   "name": "vincent-van-git",
   "productName": "vincent-van-git",
   "version": "0.0.1",
-  "description": "Use your Github commit history as a canvas!",
+  "description": "Use your GitHub commit history as a canvas!",
   "license": "MIT",
   "engines": {
     "node": ">=9.0.0",
