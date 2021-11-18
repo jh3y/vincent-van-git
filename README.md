@@ -1,19 +1,19 @@
 <img src="src/shared/assets/images/vincent-van-git--icon.svg" width="100">
 
 # Vincent van Git
-## Use your Github contributions graph as a canvas!
+## Use your GitHub contributions graph as a canvas!
 
-Ever questioned the existence of the Github contributions graph? Looked at it and thought "What does this tell anyone? I work too much? I work too little? Less commits mean less quality work?".
+Ever questioned the existence of the GitHub contributions graph? Looked at it and thought "What does this tell anyone? I work too much? I work too little? Less commits mean less quality work?".
 
 Do you get contribution graph envy? Let Vincent help you!
 
-Vincent van Git is an app for using your Github contributions graph as a canvas.
+Vincent van Git is an app for using your GitHub contributions graph as a canvas.
 
 ## Usage
 
-1. Create an empty Github repository.
+1. Create an empty GitHub repository.
 2. Visit [Vincent](https://vincent-van-git.netlify.app).
-3. Configure your settings (Github username, empty repository name, repository branch).
+3. Configure your settings (GitHub username, empty repository name, repository branch).
 4. Draw the desired image. Left mouse to draw, right mouse to erase. Every cell can be four shades of green.
 5. Download the shell script.
 6. Run the script!
@@ -43,7 +43,7 @@ Also, why not? It kinda sucks when people question people for doing things they 
 ![Bear codes image on graph](src/shared/assets/images/bear.png)
 
 ## How?
-Vincent van Git works by pushing empty commits to an empty Github repository. As a user, you draw the image you want on the grid. This equates to an Array of numbers that are either 0, 1, 2, 3, or 4. After configuring your settings, you are able to download the shell script.
+Vincent van Git works by pushing empty commits to an empty GitHub repository. As a user, you draw the image you want on the grid. This equates to an Array of numbers that are either 0, 1, 2, 3, or 4. After configuring your settings, you are able to download the shell script.
 
 Vincent makes checks using a serverless function and gets a commit multiplier. The check consists of making sure the settings are valid. That means that the username exists as does the repository. Also, the repository must be empty. If the checks pass, the function grabs the highest amount of commits per day for the username. The front end uses this to generate a shell script that will commit empty commits to a local repository.
 
