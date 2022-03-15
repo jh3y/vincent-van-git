@@ -73,6 +73,7 @@ git init
     dispatch
   )
   SCRIPT += `git remote add origin https://github.com/${username}/${repository}.git\n`
+  SCRIPT += `git branch -M ${branch}\n`
   SCRIPT += `git push -u origin ${branch}\n`
   SCRIPT += `cd ../\n`
   SCRIPT += `rm -rf ${repoPath}\n`
