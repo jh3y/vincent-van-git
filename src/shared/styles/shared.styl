@@ -150,10 +150,17 @@ button {
   }
 }
 
-.audio-toggle {
+.float-icon {
   position: absolute;
   top: calc(44px + (2 * var(--padding)));
-  left: var(--padding);
+
+  &.left {
+    left: var(--padding);
+  }
+
+  &.right {
+    right: var(--padding);
+  }
 }
 
 #audio {

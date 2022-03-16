@@ -15,7 +15,7 @@ const AudioToggle = ({ muted: propsMuted, onToggle }) => {
       <label
         htmlFor="audio"
         title="Toggle audio"
-        className="icon-button audio-toggle">
+        className="icon-button float-icon left">
         {muted ? <AudioOff /> : <AudioOn />}
       </label>
     </Fragment>

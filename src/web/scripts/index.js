@@ -16,6 +16,7 @@ import Toasts from '../../shared/components/toasts'
 import Intro from '../../shared/components/intro'
 import AudioToggle from '../../shared/components/audio-toggle'
 import useSound from '../../shared/hooks/useSound'
+import GitHubLink from '../../shared/components/links'
 
 import {
   MESSAGES,
@@ -406,6 +407,7 @@ const App = () => {
       </div>
       {generating && <Progress hide={hideVincent} onComplete={onProgressEnd} />}
       <AudioToggle onToggle={toggleAudio} muted={muted} />
+      <GitHubLink />
       <Toasts toast={toast} />
     </Fragment>
   )
