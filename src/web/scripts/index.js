@@ -235,7 +235,7 @@ const App = () => {
       silent: errorRef.current,
       type: ACTIONS.GENERATE,
     })
-    if (!errorRef.current) trumpetPlay()
+    if (!errorRef.current && !muted) trumpetPlay()
   }
 
   const toggleAudio = () => {
