@@ -41,6 +41,7 @@
   --owl-4: #80cbc5;
   --owl-5: #c793ec;
   --padding: 16px;
+  --background: hsl(0, 0%, 98%);
 }
 
 body {
@@ -51,7 +52,7 @@ body {
   align-items: center;
   justify-content: center;
   color: hsl(0, 0%, 15%);
-  background-color: hsl(0, 0%, 100%);
+  background-color: var(--background);
   min-height: 360px;
   overflow: hidden;
 }
@@ -230,4 +231,26 @@ a:active {
 
 .instructions-content > * + * {
   margin-top: var(--padding);
+}
+
+.github-corner {
+  color: var(--background);
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  transform: rotate(180deg);
+  transition: fill 0.2s, color 0.2s;
+  
+  &:hover {
+    color: var(--stroke);
+    fill: var(--green-two);
+  }
+}
+
+.branding {
+  width: 54px;
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  filter: grayscale(0.5);
 }
