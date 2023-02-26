@@ -2,10 +2,13 @@ const cheerio = require('cheerio')
 const fetch = require('node-fetch')
 
 const MESSAGES = {
-  BRANCH: (branch, repository, username) => `Branch "${branch}" does not exist for repository "${username}/${repository}"`,
-  USERNAME: username => `Username "${username}" does not exist`,
-  REPO: (username, repository) => `Repository "${username}/${repository}" does not exist`,
-  EMPTY: (username, repository) => `Repository "${username}/${repository}" is not empty`,
+  BRANCH: (branch, repository, username) =>
+    `Branch "${branch}" does not exist for repository "${username}/${repository}"`,
+  USERNAME: (username) => `Username "${username}" does not exist`,
+  REPO: (username, repository) =>
+    `Repository "${username}/${repository}" does not exist`,
+  EMPTY: (username, repository) =>
+    `Repository "${username}/${repository}" is not empty`,
 }
 
 const isEmptyRepo = async (username, repository) => {
@@ -21,13 +24,17 @@ const validateConfig = async (username, repository, branch) => {
   const userRequest = await fetch(`https://github.com/${username}`)
   if (userRequest.status !== 200) throw Error(MESSAGES.USERNAME(username))
   // Check for the repository
-  const repoRequest = await fetch(`https://github.com/${username}/${repository}`)
-  if (repoRequest.status !== 200) throw Error(MESSAGES.REPO(username, repository))
+  const repoRequest = await fetch(
+    `https://github.com/${username}/${repository}`
+  )
+  if (repoRequest.status !== 200)
+    throw Error(MESSAGES.REPO(username, repository))
   // Check for the repository branch
   const branchRequest = await fetch(
     `https://github.com/${username}/${repository}/tree/${branch}`
   )
-  if (branchRequest.status !== 200) throw Error(MESSAGES.BRANCH(branch, repository, username))
+  if (branchRequest.status !== 200)
+    throw Error(MESSAGES.BRANCH(branch, repository, username))
   const IS_EMPTY = await isEmptyRepo(username, repository)
   if (!IS_EMPTY) throw Error(MESSAGES.EMPTY(username, repository))
   return false
@@ -43,13 +50,17 @@ const getCommitMultiplier = async (username) => {
   // Instantiate an Array
   const COUNTS = []
   // Grab all the commit days from the HTML
-  const COMMIT_DAYS = $('[data-count]')
+  // const COMMIT_DAYS = $('[data-count]')
+  const COMMIT_DAYS = $('.ContributionCalendar-day')
   // Loop over the commit days and grab the "data-count" attribute
   // Push it into the Array
   COMMIT_DAYS.each((DAY) => {
-    COUNTS.push(parseInt(COMMIT_DAYS[DAY].attribs['data-count'], 10))
+    const MSG = COMMIT_DAYS[DAY]?.children[0]?.data
+    if (MSG) {
+      const COUNT = parseInt(MSG.split(' ')[0], 10)
+      if (!isNaN(COUNT)) COUNTS.push(COUNT)
+    }
   })
-  // console.info(`Largest amount of commits for a day is ${Math.max(...COUNTS)}`)
   return Math.max(...COUNTS)
 }
 exports.handler = async (event, context) => {
