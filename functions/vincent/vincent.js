@@ -55,7 +55,7 @@ const getCommitMultiplier = async (username) => {
   // Loop over the commit days and grab the "data-count" attribute
   // Push it into the Array
   COMMIT_DAYS.each((DAY) => {
-    const MSG = COMMIT_DAYS[DAY]?.children[0]?.data
+    const MSG = COMMIT_DAYS[DAY]?.children[0]?.children[0]?.data
     if (MSG) {
       const COUNT = parseInt(MSG.split(' ')[0], 10)
       if (!isNaN(COUNT)) COUNTS.push(COUNT)
