@@ -9,6 +9,35 @@ Do you get contribution graph envy? Let Vincent help you!
 
 Vincent van Git is an app for using your GitHub contributions graph as a canvas.
 
+
+Vincent Van Git provides a user friendly GUI for the easy creation of new images in a GitHub inspired environment
+These images are then applied to the users GitHub contribution page for all to admire
+
+Table of Contents
+=================
+[Features](#features)
+
+[Usage](#Usage)
+
+[Why?](#why)
+
+[Examples](#examples)
+
+[How](#how)
+
+[Under The Hood](#under-the-hood)
+
+[Development](#development)
+
+[License](#license)
+
+## Features
+- Painting/editing configs on a grid based canvas
+- Saving & Deleting different configs
+- Loading saved configs
+- Importing and exporting configs as shell scripts
+- Selecting Github, repository and branch to "paint" to
+
 ## Usage
 
 1. Create an empty GitHub repository.
