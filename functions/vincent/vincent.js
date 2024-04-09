@@ -51,16 +51,17 @@ const getCommitMultiplier = async (username) => {
   const COUNTS = []
   // Grab all the commit days from the HTML
   // const COMMIT_DAYS = $('[data-count]')
-  const COMMIT_DAYS = $('.ContributionCalendar-day')
+  const COMMIT_DAYS = $('tool-tip')
   // Loop over the commit days and grab the "data-count" attribute
   // Push it into the Array
-  COMMIT_DAYS.each((DAY) => {
-    const MSG = COMMIT_DAYS[DAY]?.children[0]?.children[0]?.data
-    if (MSG) {
-      const COUNT = parseInt(MSG.split(' ')[0], 10)
-      if (!isNaN(COUNT)) COUNTS.push(COUNT)
+  for (let i = 0; i < Object.keys(COMMIT_DAYS).length; i++) {
+    if (COMMIT_DAYS[i] !== undefined) {
+      const MSG = COMMIT_DAYS[i].children[0]?.data.split(' ')[0]
+      if (MSG.toLowerCase() !== 'no') {
+        COUNTS.push(parseInt(MSG, 10))
+      }
     }
-  })
+  }
   return Math.max(...COUNTS)
 }
 exports.handler = async (event, context) => {
