@@ -95,6 +95,7 @@ Toasts.propTypes = {
     created: T.string,
     message: T.string,
     type: T.oneOf(['ERROR', 'INFO', 'SUCCESS']),
+    life: T.number,
   }),
 }
 

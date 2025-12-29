@@ -2,17 +2,32 @@ import { ACTIONS, TOASTS, MESSAGES } from '../../shared/constants'
 import { DateTime } from 'luxon'
 import 'regenerator-runtime/runtime'
 
-const processCommits = async (commits, multiplier, onCommit, dispatch) => {
-  const TODAY = DateTime.local()
-  const START_DAY = TODAY.minus({ days: commits.length - 1 })
+const processCommits = async (
+  commits,
+  multiplier,
+  onCommit,
+  dispatch,
+  startDate,
+  startOffset,
+  endOffset
+) => {
+  // Convert startDate (Date object) to Luxon DateTime
+  const START_DAY = DateTime.fromJSDate(startDate)
   let total = 0
   let genArr = []
-  for (let c = 0; c < commits.length; c++) {
+
+  // Only process cells that are not offset cells
+  // Skip cells before startOffset and after (commits.length - endOffset)
+  const dataStartIndex = startOffset
+  const dataEndIndex = commits.length - endOffset
+
+  for (let c = dataStartIndex; c < dataEndIndex; c++) {
     const LEVEL = commits[c]
     const NUMBER_COMMITS = LEVEL * multiplier
     total += NUMBER_COMMITS
-    genArr.push(NUMBER_COMMITS)
+    genArr.push({ count: NUMBER_COMMITS, cellIndex: c })
   }
+
   // Dispatch a message.
   dispatch({
     type: ACTIONS.TOASTING,
@@ -22,13 +37,17 @@ const processCommits = async (commits, multiplier, onCommit, dispatch) => {
       life: 4000,
     },
   })
+
   // Loop through the commits matching up the dates and creating empty commits
   for (let d = 0; d < genArr.length; d++) {
     // Git commit structure
     // git commit --allow-empty --date "Mon Oct 12 23:17:02 2020 +0100" -m "Vincent paints again"
-    const COMMITS = genArr[d]
+    const { count: COMMITS, cellIndex } = genArr[d]
     if (COMMITS > 0) {
-      const COMMIT_DAY = START_DAY.plus({ days: d })
+      // Calculate the date: startDate + (cellIndex - startOffset) days
+      // This aligns with the UI grid where cell at startOffset represents startDate
+      const DAYS_FROM_START = cellIndex - startOffset
+      const COMMIT_DAY = START_DAY.plus({ days: DAYS_FROM_START })
       for (let c = 0; c < COMMITS; c++) {
         onCommit(COMMIT_DAY.toISO({ includeOffset: true }))
       }
@@ -58,7 +77,10 @@ const generateShellScript = async (
   repository,
   branch,
   repoPath,
-  dispatch
+  dispatch,
+  startDate,
+  startOffset,
+  endOffset
 ) => {
   let SCRIPT = `mkdir ${repoPath}
 cd ${repoPath}
@@ -68,9 +90,12 @@ git init
     commits,
     multiplier,
     (date) => {
-      SCRIPT += `git commit --allow-empty --date "${date})}" -m "Vincent paints again"\n`
+      SCRIPT += `git commit --allow-empty --date "${date}" -m "Vincent paints again"\n`
     },
-    dispatch
+    dispatch,
+    startDate,
+    startOffset,
+    endOffset
   )
   SCRIPT += `git remote add origin https://github.com/${username}/${repository}.git\n`
   SCRIPT += `git branch -M ${branch}\n`

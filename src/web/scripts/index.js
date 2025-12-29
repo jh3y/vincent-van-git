@@ -64,7 +64,30 @@ const App = () => {
   const { play: sparklePlay } = useSound(SPARKLE_PATH)
   const { play: brushPlay } = useSound(BRUSH_PATH)
   const { play: trumpetPlay } = useSound(TRUMPET_PATH)
-  const NUMBER_OF_DAYS = 52 * 7 + (new Date().getDay() + 1)
+
+  // Calculate number of days between current date and same date last year
+  const now = new Date()
+  now.setHours(0, 0, 0, 0) // Normalize to midnight
+  const lastYear = new Date(
+    now.getFullYear() - 1,
+    now.getMonth(),
+    now.getDate()
+  )
+  lastYear.setHours(0, 0, 0, 0) // Normalize to midnight
+  const daysDiff = Math.floor((now - lastYear) / (1000 * 60 * 60 * 24))
+
+  // Calculate offsets to align to Sunday-Saturday weeks
+  // getDay() returns 0 for Sunday, 1 for Monday, etc.
+  const startDayOfWeek = lastYear.getDay() // Day of week for start date (0 = Sunday)
+  const endDayOfWeek = now.getDay() // Day of week for end date (0 = Sunday)
+
+  // Start offset: pad to align to Sunday (0 = Sunday, so if start is Sunday, offset is 0)
+  const startOffset = startDayOfWeek
+  // End offset: pad to align to Saturday (6 = Saturday, so if end is Saturday, offset is 0)
+  const endOffset = 6 - endDayOfWeek
+
+  const NUMBER_OF_DAYS = startOffset + daysDiff + endOffset
+  const gridOffsets = { startOffset, endOffset, startDate: lastYear }
   const cellsRef = useRef(
     selected
       ? JSON.parse(JSON.parse(selected).commits)
@@ -116,10 +139,9 @@ const App = () => {
     const { name, commits } = JSON.parse(e.target.value)
     // Update the input ref
     inputRef.current.value = name
-    cellsRef.current = sanitizeDays(
-      JSON.parse(commits),
-      NUMBER_OF_DAYS
-    ).map((value) => parseInt(value, 10))
+    cellsRef.current = sanitizeDays(JSON.parse(commits), NUMBER_OF_DAYS).map(
+      (value) => parseInt(value, 10)
+    )
     // Trick to re-render the commit grid without using state for cells
     setDirty(true)
     if (!muted) sparklePlay()
@@ -191,7 +213,10 @@ const App = () => {
               repository,
               branch,
               REPO_PATH,
-              dispatch
+              dispatch,
+              gridOffsets.startDate,
+              gridOffsets.startOffset,
+              gridOffsets.endOffset
             )
             const FILE = new zip()
             FILE.file('vincent-van-git.sh', SCRIPT)
@@ -220,7 +245,16 @@ const App = () => {
       setHideVincent(false)
       if (errorRef.current) errorRef.current = null
     }
-  }, [generating, branch, dispatch, repository, username])
+  }, [
+    generating,
+    branch,
+    dispatch,
+    repository,
+    username,
+    gridOffsets.startDate,
+    gridOffsets.startOffset,
+    gridOffsets.endOffset,
+  ])
 
   const onSettingsUpdate = (settings) => {
     if (!muted) clickPlay()
@@ -387,6 +421,9 @@ const App = () => {
           muted={muted}
           cells={cellsRef.current}
           onChange={checkDirty}
+          startOffset={gridOffsets.startOffset}
+          endOffset={gridOffsets.endOffset}
+          startDate={gridOffsets.startDate}
         />
         <Actions
           images={images}
@@ -410,18 +447,21 @@ const App = () => {
         href="https://github.com/jh3y/vincent-van-git"
         title="Fork me on GitHub"
         target="_blank"
-        rel="noopener noreferrer">
+        rel="noopener noreferrer"
+      >
         <svg width="80" height="80" viewBox="0 0 250 250">
           <title>Fork me on GitHub</title>
           <path d="M0 0h250v250"></path>
           <path
             className="octo-arm"
             d="M127.4 110c-14.6-9.2-9.4-19.5-9.4-19.5 3-7 1.5-11 1.5-11-1-6.2 3-2 3-2 4 4.7 2 11 2 11-2.2 10.4 5 14.8 9 16.2"
-            fill="currentColor"></path>
+            fill="currentColor"
+          ></path>
           <path
             className="octo-body"
             d="M113.2 114.3s3.6 1.6 4.7.6l15-13.7c3-2.4 6-3 8.2-2.7-8-11.2-14-25 3-41 4.7-4.4 10.6-6.4 16.2-6.4.6-1.6 3.6-7.3 11.8-10.7 0 0 4.5 2.7 6.8 16.5 4.3 2.7 8.3 6 12 9.8 3.3 3.5 6.7 8 8.6 12.3 14 3 16.8 8 16.8 8-3.4 8-9.4 11-11.4 11 0 5.8-2.3 11-7.5 15.5-16.4 16-30 9-40 .2 0 3-1 7-5.2 11l-13.3 11c-1 1 .5 5.3.8 5z"
-            fill="currentColor"></path>
+            fill="currentColor"
+          ></path>
         </svg>
       </a>
       <img className="branding" src={Logo} alt="Vincent van Git" />

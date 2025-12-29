@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import T from 'prop-types'
 import { MonoSynth } from 'tone/build/Tone'
 import BRUSH_PATH from '../../assets/images/brush.png'
 import './commit-grid.styl'
@@ -12,6 +13,9 @@ export default function CommitGrid({
   cells = [],
   onChange = () => {},
   muted = false,
+  startOffset = 0,
+  endOffset = 0,
+  startDate = null,
 }) {
   const gridRef = useRef(null)
   const rendered = useRef(null)
@@ -58,14 +62,8 @@ export default function CommitGrid({
           frequency: 440,
           partialCount: 8,
           partials: [
-            1.2732395447351628,
-            0,
-            0.4244131815783876,
-            0,
-            0.25464790894703254,
-            0,
-            0.18189136353359467,
-            0,
+            1.2732395447351628, 0, 0.4244131815783876, 0, 0.25464790894703254,
+            0, 0.18189136353359467, 0,
           ],
           phase: 0,
           type: 'square8',
@@ -91,6 +89,10 @@ export default function CommitGrid({
     ) {
       rendered.current = cell
       const INDEX = parseInt(cell.getAttribute('data-index'), 10)
+      // Don't allow interaction with offset cells
+      if (INDEX < startOffset || INDEX >= cells.length - endOffset) {
+        return
+      }
       const LEVEL = parseInt(cell.getAttribute('data-level'), 10) || 0
       if (erasing.current) {
         cell.setAttribute('data-level', 0)
@@ -151,20 +153,47 @@ export default function CommitGrid({
       style={{
         '--cursor': `url("${BRUSH_PATH}") 14 34, auto`,
       }}
-      className="commit-grid">
+      className="commit-grid"
+    >
       {cells.map((cell, index) => {
         const COLUMN = Math.floor(index / 7) + 1
+        const isOffsetCell =
+          index < startOffset || index >= cells.length - endOffset
+
+        // Calculate the date for this cell
+        // The first cell (index 0) represents the Sunday of the week containing the start date
+        // So we subtract startOffset days from the start date to get the first cell's date
+        let cellDate = null
+        if (startDate) {
+          const cellDateObj = new Date(startDate)
+          cellDateObj.setDate(cellDateObj.getDate() - startOffset + index)
+          cellDate = cellDateObj.toISOString().split('T')[0] // Format as YYYY-MM-DD
+        }
+
         return (
           <div
             style={{
               '--column': COLUMN,
             }}
-            className="commit-grid__cell"
+            className={`commit-grid__cell ${
+              isOffsetCell ? 'commit-grid__cell--offset' : ''
+            }`}
             data-level={cell || 0}
             data-index={index}
-            key={index}></div>
+            data-date={cellDate || ''}
+            key={index}
+          ></div>
         )
       })}
     </div>
   )
+}
+
+CommitGrid.propTypes = {
+  cells: T.arrayOf(T.number),
+  onChange: T.func,
+  muted: T.bool,
+  startOffset: T.number,
+  endOffset: T.number,
+  startDate: T.instanceOf(Date),
 }
